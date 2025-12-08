@@ -2,299 +2,639 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>南宁三天三夜春日漫游计划</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PhotoGlow Ultimate (WebGL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' },
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed', glow: 'rgba(139, 92, 246, 0.5)' }
+                    },
+                    fontFamily: { mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'] }
+                }
+            }
+        }
+    </script>
     <style>
-        /* 全局样式 */
-        :root {
-            --primary: #2ecc71;
-            --secondary: #e67e22;
-            --light: #f8f9fa;
-            --dark: #343a40;
+        /* 禁止滑动条触发页面滚动 */
+        input[type=range] { 
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+            margin: 6px 0; 
+            cursor: pointer; 
+            touch-action: none; 
         }
-        body {
-            font-family: '阿里巴巴普惠体', 'Montserrat', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
-            padding: 0;
-            margin: 0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; }
+        input[type=range]:hover::-webkit-slider-runnable-track { background: #4b5563; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #e5e7eb; margin-top: -5px; border: 2px solid #1f2937; transition: all 0.2s ease; }
+        input[type=range]:focus::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { background: #8b5cf6; border-color: #fff; transform: scale(1.2); box-shadow: 0 0 15px rgba(139, 92, 246, 0.8); }
+        
+        /* 背景与面板样式 */
+        .canvas-bg { background-color: #030712; background-image: linear-gradient(45deg, #0f172a 25%, transparent 25%), linear-gradient(-45deg, #0f172a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0f172a 75%), linear-gradient(-45deg, transparent 75%, #0f172a 75%); background-size: 24px 24px; }
+        .glass-panel { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid rgba(255,255,255,0.05); }
+        .value-badge { font-family: 'ui-monospace', monospace; font-size: 11px; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 4px; min-width: 36px; text-align: right; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* 关键：自定义滚动条样式 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
-        /* 标题样式 */
-        header {
-            text-align: center;
-            padding: 40px 0;
-            background: linear-gradient(45deg, var(--primary), #27ae60);
-            color: white;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
-            margin-bottom: 40px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-        }
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        /* 卡片样式 */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        }
-        .card-img {
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            height: 200px;
-            object-fit: cover;
-        }
-        .time-tag {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: white;
-            font-weight: bold;
-        }
-        .orange-bg {
-            background: var(--secondary);
-        }
-        .purple-bg {
-            background: #9b59b6;
-        }
-        .tag-new {
-            display: inline-block;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-        .tag-hot {
-            display: inline-block;
-            background: linear-gradient(45deg, #e74c3c, #e67e22);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        /* 特色文字 */
-        mark {
-            background: linear-gradient(120deg, rgba(255,237,117,0.3) 0%, rgba(255,237,117,0.3) 100%);
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-        .orange-text {
-            color: var(--secondary);
-            font-weight: bold;
-        }
-        .btn-highlight {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-highlight:hover {
-            background: #27ae60;
-            transform: scale(1.05);
-        }
-
-        /* 时间轴样式 */
-        .timeline-card {
-            border-left: 3px dashed var(--primary);
-            padding-left: 25px;
-            margin: 30px 0;
-            position: relative;
-        }
-        .timeline-node {
-            position: absolute;
-            left: -10px;
-            top: 5px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--primary);
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-        .float-left {
-            float: left;
-            width: 45%;
-            margin-right: 20px;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        .text-box {
-            overflow: hidden;
-        }
-
-        /* 对比卡片 */
-        .comparison-card {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .before-after {
-            display: flex;
-            gap: 10px;
-        }
-        .before-after img {
-            width: 50%;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
-        /* 提示框 */
-        .alert-box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 30px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid var(--secondary);
-        }
-        .orange-border {
-            border-left-color: var(--secondary);
-        }
-
-        /* 响应式调整 */
+        /* 模态框 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        /* 布局控制 */
         @media (max-width: 768px) {
-            .float-left {
-                float: none;
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-            .before-after {
-                flex-direction: column;
-            }
-            .before-after img {
-                width: 100%;
-            }
+            .mobile-layout { flex-direction: column; }
+            .canvas-container-mobile { flex: 1; width: 100%; min-height: 0; } /* min-height:0 允许 flex 收缩 */
+            /* 移动端面板固定高度，内容区域滚动 */
+            .mobile-panel { width: 100%; height: 50vh; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
+            input[type=range]::-webkit-slider-thumb { height: 20px; width: 20px; margin-top: -8px; }
+        }
+        @media (min-width: 769px) { 
+            .mobile-panel { width: 340px; height: 100%; display: flex; flex-direction: column; } 
+            .canvas-container-mobile { flex: 1; height: 100%; } 
         }
     </style>
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>🌿 南宁三天三夜春日漫游计划</h1>
-            <div class="subtitle">📅 3月31日-4月2日 | 🌡️ 春季20-28℃ | ✨ 现代UI风格动态海报</div>
+<body class="bg-gray-950 text-gray-200 h-screen flex flex-col overflow-hidden font-sans selection:bg-accent-500 selection:text-white">
+
+    <header class="h-14 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 md:px-6 z-20 shrink-0">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-600 to-blue-600 flex items-center justify-center shadow-lg shadow-accent-500/20">
+                <i class="fas fa-bolt text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm md:text-base tracking-wider text-white leading-tight">PhotoGlow <span class="text-accent-500">Ultimate</span></h1>
+            </div>
+        </div>
+        <div class="flex gap-2 md:gap-3">
+            <label for="uploadInput" class="cursor-pointer bg-gray-800 hover:bg-gray-700 hover:text-white border border-gray-700 text-gray-300 transition-all duration-200 px-3 md:px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2">
+                <i class="fas fa-folder-open text-xs"></i>
+                <span class="hidden md:inline">打开图片</span>
+                <span class="md:hidden">打开</span>
+            </label>
+            <input type="file" id="uploadInput" accept="image/*" class="hidden">
+            
+            <button id="compareBtn" class="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50" disabled title="按住对比原图">
+                <i class="fas fa-eye text-xs"></i>
+                <span class="hidden md:inline">按住对比</span>
+            </button>
+
+            <button id="downloadBtn" class="bg-accent-600 hover:bg-accent-500 text-white shadow-lg shadow-accent-600/30 transition-all duration-200 px-3 md:px-5 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <i class="fas fa-file-export text-xs"></i>
+                <span>导出</span>
+            </button>
         </div>
     </header>
 
-    <div class="container">
-        <div class="card">
-            <h2>🎨 视觉设计说明</h2>
-            <p><strong>配色方案：</strong><br>
-            渐变青绿主色+活力橙点缀</p>
-            <img src="https://i.imgur.com/8l8XzKq.png" alt="渐变色卡" class="card-img">
-            <p><strong>交互亮点：</strong><br>
-            ① 悬浮卡片放大动效 ② 时间轴进度条 ③ 高亮Tips弹窗 ④ 图文瀑布流布局</p>
-        </div>
+    <main class="flex-1 flex mobile-layout overflow-hidden relative w-full h-full">
+        <!-- Canvas Area -->
+        <div class="relative flex items-center justify-center p-4 canvas-bg overflow-hidden group canvas-container-mobile" id="dropZone">
+            <div id="emptyState" class="text-center pointer-events-none flex flex-col items-center transition-opacity duration-500">
+                <div class="w-20 h-20 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center mb-4 shadow-2xl">
+                    <i class="fas fa-plus text-gray-700 text-3xl"></i>
+                </div>
+                <p class="text-lg font-light text-gray-400 tracking-wide">拖入图片 或 点击打开</p>
+                <p class="text-xs mt-2 text-gray-600 font-mono border border-gray-800 px-3 py-1 rounded-full">GPU Accelerated</p>
+            </div>
+            
+            <canvas id="glCanvas" class="shadow-2xl shadow-black/50 object-contain hidden" style="max-width: 100%; max-height: 100%;"></canvas>
+            
+            <div id="compareLabel" class="absolute top-4 left-4 bg-red-500/80 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur hidden pointer-events-none z-20">
+                ORIGINAL
+            </div>
 
-        <h2>📍 行程地图</h2>
-        <div class="card">
-            <img src="https://i.imgur.com/8tZvW7k.jpg" alt="南宁景点分布图" class="card-img">
-            <div style="text-align: center; margin-top: 10px;">
-                <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 12px; margin: 0 5px;">青秀山</span>
-                <span style="background: var(--secondary); color: white; padding: 3px 10px; border-radius: 12px; margin: 0 5px;">扬美古镇</span>
+            <div id="loadingIndicator" class="absolute inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+                <div class="w-10 h-10 border-4 border-gray-800 border-t-accent-500 rounded-full animate-spin"></div>
+                <p class="text-xs text-accent-500 mt-3 font-mono">PROCESSING...</p>
             </div>
         </div>
 
-        <h2>🗓️ 每日精选行程</h2>
-
-        <h3>🌸 DAY1：绿城初印象</h3>
-        <div class="card">
-            <div class="time-tag orange-bg">⏰ 09:00-12:00</div>
-            <img src="https://i.imgur.com/KYjD6dE.jpg" class="card-img" alt="青秀山龙象塔">
-            <h3>📍 青秀山风景区 <span class="tag-new">NEW春季花展</span></h3>
-            <p>🎫 门票20元 | 🌸 必拍桃花坞/兰园<br>📸 <mark>龙象塔顶层全景机位</mark></p>
-        </div>
-
-        <div class="card">
-            <div class="time-tag purple-bg">🌙 19:00-22:00</div>
-            <img src="https://i.imgur.com/5GkXJbF.jpg" class="card-img" alt="中山路美食街">
-            <h3>📍 中山路夜市 <span class="tag-hot">TOP1美食街</span></h3>
-            <p>🍢 推荐：<strong class="orange-text">复记老友粉</strong>、酸嘢、卷筒粉<br>💡 贴士：备好现金，部分摊位只收现金</p>
-        </div>
-
-        <h3>🏯 DAY2：古今穿梭日</h3>
-        <div class="timeline-card">
-            <div class="timeline-node"></div>
-            <img src="https://i.imgur.com/tRzWZQh.jpg" class="float-left" alt="扬美古镇">
-            <div class="text-box">
-                <h4>🏮 扬美古镇</h4>
-                <p>🚗 距市区36km | 明清古建筑群<br>✨ 特色体验：<button class="btn-highlight">手工沙糕制作</button></p>
+        <!-- Settings Panel -->
+        <aside class="glass-panel shrink-0 z-10 shadow-2xl relative mobile-panel">
+            <!-- Header (Fixed) -->
+            <div class="px-4 py-3 border-b border-gray-800 flex justify-between items-center bg-gray-900/40 shrink-0">
+                <div class="flex items-center gap-2 text-gray-400">
+                    <i class="fas fa-sliders-h text-xs"></i>
+                    <h2 class="font-bold text-xs uppercase tracking-widest">Parameters</h2>
+                </div>
+                <button id="resetBtn" class="text-[10px] text-gray-500 hover:text-white transition-colors bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded border border-gray-700">RESET</button>
             </div>
-            <div style="clear: both;"></div>
-        </div>
 
-        <div class="comparison-card">
-            <div class="before-after">
-                <img src="https://i.imgur.com/3JqZ7gT.jpg" alt="民族博物馆日景">
-                <img src="https://i.imgur.com/vN2zOxH.jpg" alt="民族博物馆夜景">
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5 pb-10">
+                
+                <section>
+                    <div class="flex items-center gap-2 text-accent-400 mb-3">
+                        <i class="fas fa-sun text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">Deep Glow (辉光)</span>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>强度 (Intensity)</span><span id="bloomStrengthVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="bloomStrength" min="0" max="300" value="0" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>阈值 (Threshold)</span><span id="bloomThresholdVal" class="value-badge">0.70</span></div>
+                            <input type="range" id="bloomThreshold" min="0" max="100" value="70" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>扩散半径 (Radius)</span><span id="bloomRadiusVal" class="value-badge">1.0</span></div>
+                            <input type="range" id="bloomRadius" min="0" max="500" value="100" step="1">
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex items-center gap-2 text-yellow-200/80 mb-3">
+                        <i class="fas fa-film text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">Film Look (胶片)</span>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>颗粒 (Grain)</span><span id="grainVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="grain" min="0" max="100" value="0" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>暗角 (Vignette)</span><span id="vignetteVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="vignette" min="0" max="100" value="0" step="1">
+                        </div>
+                         <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色差 (Aberration)</span><span id="aberrationVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="aberration" min="0" max="100" value="0" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色温 (Temp)</span><span id="temperatureVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="temperature" min="-50" max="50" value="0" step="1" style="background: linear-gradient(90deg, #93c5fd 0%, #374151 50%, #fcd34d 100%);">
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex items-center gap-2 text-blue-300/80 mb-3">
+                        <i class="fas fa-adjust text-sm"></i>
+                        <span class="font-bold text-sm tracking-wide">Tone (影调)</span>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 grid grid-cols-2 gap-3">
+                        <div class="col-span-2">
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>曝光 (Exposure)</span><span id="exposureVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="exposure" min="-100" max="100" value="0" step="1">
+                        </div>
+                        <div class="col-span-2">
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>对比度 (Contrast)</span><span id="contrastVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="contrast" min="-100" max="100" value="0" step="1">
+                        </div>
+                        <div class="col-span-2">
+                            <div class="flex justify-between text-xs mb-1 text-gray-400"><span>饱和度 (Sat)</span><span id="saturationVal" class="value-badge">0.0</span></div>
+                            <input type="range" id="saturation" min="-100" max="100" value="0" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-500">Highs</div>
+                            <input type="range" id="highlights" min="-100" max="100" value="0" step="1">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-gray-500">Shadows</div>
+                            <input type="range" id="shadows" min="-100" max="100" value="0" step="1">
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Spacer for mobile scrolling -->
+                <div class="h-8 md:hidden"></div>
             </div>
-            <p>🌇 广西民族博物馆 | 16:00-18:00<br>🎫 免费需预约 | 铜鼓造型地标建筑</p>
-        </div>
+        </aside>
+    </main>
 
-        <h3>🌈 DAY3：多彩文化行</h3>
-        <div class="card">
-            <img src="https://i.imgur.com/mM6Kv0r.jpg" class="card-img" alt="园博园">
-            <h3>🌺 南宁园博园</h3>
-            <p>📅 3月限定：<em>紫荆花海</em><br>🚌 旅游直通车B02路直达</p>
-        </div>
-
-        <h2>💡 行前必读</h2>
-        <div class="alert-box orange-border">
-            ✅ 必备物品：防晒霜/薄外套/驱蚊液<br>
-            🚇 交通推荐：地铁「南宁轨道交通」APP<br>
-            🍍 手信推荐：横县茉莉花茶/黄皮酱
+    <!-- Save Modal -->
+    <div id="saveModal" class="modal-overlay">
+        <div class="bg-gray-900 rounded-xl p-4 max-w-sm w-full mx-4 border border-gray-700 shadow-2xl flex flex-col items-center">
+            <h3 class="text-white font-bold mb-2">图片已生成</h3>
+            <p class="text-xs text-gray-400 mb-4 text-center">长按下方图片保存到相册</p>
+            <div class="w-full h-64 bg-black rounded-lg border border-gray-800 mb-4 flex items-center justify-center overflow-hidden">
+                <img id="saveImg" src="" alt="Result" class="max-w-full max-h-full object-contain">
+            </div>
+            <button id="closeModalBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+                关闭
+            </button>
         </div>
     </div>
 
-    <script>
-        // 简单的交互效果
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('click', function() {
-                this.classList.toggle('active');
-            });
-        });
+<script>
+    // --- WebGL Shader Source Code ---
+    
+    const VS_SOURCE = `
+        attribute vec2 a_position;
+        attribute vec2 a_texCoord;
+        varying vec2 v_texCoord;
+        void main() {
+            gl_Position = vec4(a_position, 0, 1);
+            v_texCoord = a_texCoord;
+        }
+    `;
 
-        // 模拟按钮点击效果
-        document.querySelector('.btn-highlight').addEventListener('click', function() {
-            alert('✅ 已添加手工沙糕制作体验项目到行程单！');
+    // Shader 0: Copy (For Compare/Original View)
+    const FS_COPY = `
+        precision mediump float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_image;
+        void main() {
+            gl_FragColor = texture2D(u_image, v_texCoord);
+        }
+    `;
+
+    // Shader 1: Preprocess
+    const FS_PREPROCESS = `
+        precision mediump float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_image;
+        
+        uniform float u_exposure;
+        uniform float u_contrast;
+        uniform float u_saturation;
+        uniform float u_temp;
+        uniform float u_highs;
+        uniform float u_shadows;
+        
+        uniform float u_bloomThresh;
+
+        vec3 adjustColor(vec3 color) {
+            color = color * pow(2.0, u_exposure);
+            color = (color - 0.5) * (u_contrast + 1.0) + 0.5;
+            float gray = dot(color, vec3(0.299, 0.587, 0.114));
+            color = mix(vec3(gray), color, u_saturation + 1.0);
+            color.r += u_temp * 0.1;
+            color.b -= u_temp * 0.1;
+            float lum = dot(color, vec3(0.2126, 0.7152, 0.0722));
+            float shadowFactor = 1.0 - smoothstep(0.0, 0.5, lum);
+            float highFactor = smoothstep(0.5, 1.0, lum);
+            color += shadowFactor * vec3(u_shadows) * 0.2; 
+            color += highFactor * vec3(u_highs) * 0.2;
+            return clamp(color, 0.0, 1.0);
+        }
+
+        void main() {
+            vec4 texColor = texture2D(u_image, v_texCoord);
+            vec3 color = adjustColor(texColor.rgb);
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `;
+
+    // Shader 2: Blur
+    const FS_BLUR = `
+        precision mediump float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_image;
+        uniform vec2 u_resolution;
+        uniform vec2 u_direction; 
+        uniform bool u_isFirstPass; 
+        uniform float u_bloomThresh;
+
+        void main() {
+            vec2 off1 = vec2(1.3846153846) * u_direction;
+            vec2 off2 = vec2(3.2307692308) * u_direction;
+            vec3 color = vec3(0.0);
+            float weight0 = 0.227027;
+            float weight1 = 0.316216; 
+            float weight2 = 0.070270;
+            
+            vec4 c = texture2D(u_image, v_texCoord);
+            vec3 center = c.rgb;
+            if (u_isFirstPass) {
+                float brightness = dot(center, vec3(0.2126, 0.7152, 0.0722));
+                center *= smoothstep(u_bloomThresh, u_bloomThresh + 0.1, brightness);
+            }
+            color += center * weight0;
+            
+            vec3 s1 = texture2D(u_image, v_texCoord + (off1 / u_resolution)).rgb;
+            vec3 s2 = texture2D(u_image, v_texCoord - (off1 / u_resolution)).rgb;
+            if(u_isFirstPass) {
+                float b1 = dot(s1, vec3(0.2126, 0.7152, 0.0722)); s1 *= smoothstep(u_bloomThresh, u_bloomThresh+0.1, b1);
+                float b2 = dot(s2, vec3(0.2126, 0.7152, 0.0722)); s2 *= smoothstep(u_bloomThresh, u_bloomThresh+0.1, b2);
+            }
+            color += (s1 + s2) * weight1;
+            
+            vec3 s3 = texture2D(u_image, v_texCoord + (off2 / u_resolution)).rgb;
+            vec3 s4 = texture2D(u_image, v_texCoord - (off2 / u_resolution)).rgb;
+            if(u_isFirstPass) {
+                float b3 = dot(s3, vec3(0.2126, 0.7152, 0.0722)); s3 *= smoothstep(u_bloomThresh, u_bloomThresh+0.1, b3);
+                float b4 = dot(s4, vec3(0.2126, 0.7152, 0.0722)); s4 *= smoothstep(u_bloomThresh, u_bloomThresh+0.1, b4);
+            }
+            color += (s3 + s4) * weight2;
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `;
+
+    // Shader 3: Composite
+    const FS_COMPOSITE = `
+        precision mediump float;
+        varying vec2 v_texCoord;
+        uniform sampler2D u_base;  
+        uniform sampler2D u_bloom; 
+        
+        uniform float u_bloomStrength;
+        uniform float u_grain;
+        uniform float u_vignette;
+        uniform float u_aberration; 
+        uniform float u_time; 
+
+        float rand(vec2 n) { return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453); }
+
+        void main() {
+            vec3 baseColor;
+            if (u_aberration > 0.0) {
+                float dist = distance(v_texCoord, vec2(0.5));
+                vec2 offset = (v_texCoord - 0.5) * u_aberration * dist * 0.05;
+                float r = texture2D(u_base, v_texCoord - offset).r;
+                float g = texture2D(u_base, v_texCoord).g;
+                float b = texture2D(u_base, v_texCoord + offset).b;
+                baseColor = vec3(r, g, b);
+            } else {
+                baseColor = texture2D(u_base, v_texCoord).rgb;
+            }
+
+            vec3 bloomColor = texture2D(u_bloom, v_texCoord).rgb;
+            vec3 result = baseColor + (bloomColor * u_bloomStrength);
+            
+            vec2 uv = v_texCoord * 2.0 - 1.0; 
+            float dist = length(uv);
+            float vig = smoothstep(0.5, 1.5, dist * (1.0 + u_vignette));
+            result *= (1.0 - vig * 0.6 * u_vignette);
+
+            if (u_grain > 0.0) {
+                float noise = rand(v_texCoord * 10.0 + mod(u_time, 10.0));
+                float lum = dot(result, vec3(0.2126, 0.7152, 0.0722));
+                float mask = 1.0 - pow(abs(lum - 0.5) * 2.0, 2.0); 
+                result = mix(result, result + (noise - 0.5) * 0.2, u_grain * mask);
+            }
+            gl_FragColor = vec4(result, 1.0);
+        }
+    `;
+
+    const canvas = document.getElementById('glCanvas');
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true, alpha: false }); 
+    
+    const state = {
+        textureOriginal: null,
+        fboBase: null, fboPing: null, fboPong: null, 
+        width: 0, height: 0, programs: {}, isComparing: false
+    };
+
+    function createShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return null;
+        return shader;
+    }
+
+    function createProgram(gl, vsSource, fsSource) {
+        const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        return prog;
+    }
+
+    function createTexture(gl, image) {
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        if (image) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        return tex;
+    }
+
+    function createFramebuffer(gl, width, height) {
+        const fbo = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+        return { fbo, tex, width, height };
+    }
+
+    function initGL() {
+        if (!gl) return;
+        state.programs.copy = createProgram(gl, VS_SOURCE, FS_COPY);
+        state.programs.preprocess = createProgram(gl, VS_SOURCE, FS_PREPROCESS);
+        state.programs.blur = createProgram(gl, VS_SOURCE, FS_BLUR);
+        state.programs.composite = createProgram(gl, VS_SOURCE, FS_COMPOSITE);
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, -1, 1, 0, 1, 1, -1, 1, 0, 1, 1, 1, 1]), gl.STATIC_DRAW);
+    }
+
+    function loadImage(src) {
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+        const img = new Image();
+        img.onload = () => {
+            state.width = img.width;
+            state.height = img.height;
+            canvas.width = state.width;
+            canvas.height = state.height;
+            if (state.textureOriginal) gl.deleteTexture(state.textureOriginal);
+            state.textureOriginal = createTexture(gl, img);
+            const bloomScale = 0.5;
+            state.fboBase = createFramebuffer(gl, state.width, state.height);
+            state.fboPing = createFramebuffer(gl, state.width * bloomScale, state.height * bloomScale);
+            state.fboPong = createFramebuffer(gl, state.width * bloomScale, state.height * bloomScale);
+            document.getElementById('emptyState').classList.add('hidden');
+            canvas.classList.remove('hidden');
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('compareBtn').disabled = false;
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            requestAnimationFrame(render);
+        };
+        img.src = src;
+    }
+
+    function render() {
+        if (!state.textureOriginal) return;
+        gl.viewport(0, 0, state.width, state.height);
+        
+        if (state.isComparing) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.useProgram(state.programs.copy);
+            bindQuad(state.programs.copy);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, state.textureOriginal);
+            gl.uniform1i(gl.getUniformLocation(state.programs.copy, "u_image"), 0);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            return;
+        }
+
+        gl.useProgram(state.programs.preprocess);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, state.fboBase.fbo);
+        bindUniformsPreprocess();
+        bindQuad(state.programs.preprocess);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, state.textureOriginal);
+        gl.uniform1i(gl.getUniformLocation(state.programs.preprocess, "u_image"), 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        const radius = parseInt(document.getElementById('bloomRadius').value) / 20; 
+        const iterations = Math.max(2, Math.floor(radius)); 
+        
+        gl.useProgram(state.programs.blur);
+        bindQuad(state.programs.blur);
+        
+        gl.bindFramebuffer(gl.FRAMEBUFFER, state.fboPing.fbo);
+        gl.viewport(0, 0, state.fboPing.width, state.fboPing.height);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, state.fboBase.tex);
+        gl.uniform1i(gl.getUniformLocation(state.programs.blur, "u_image"), 0);
+        
+        const uRes = gl.getUniformLocation(state.programs.blur, "u_resolution");
+        const uDir = gl.getUniformLocation(state.programs.blur, "u_direction");
+        const uFirst = gl.getUniformLocation(state.programs.blur, "u_isFirstPass");
+        const uThresh = gl.getUniformLocation(state.programs.blur, "u_bloomThresh");
+        
+        gl.uniform2f(uRes, state.fboPing.width, state.fboPing.height);
+        gl.uniform2f(uDir, 1.0, 0.0);
+        gl.uniform1i(uFirst, 1);
+        gl.uniform1f(uThresh, parseInt(document.getElementById('bloomThreshold').value) / 100);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        let currFBO = state.fboPing; 
+        let nextFBO = state.fboPong;
+        for (let i = 0; i < iterations; i++) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, nextFBO.fbo);
+            gl.bindTexture(gl.TEXTURE_2D, currFBO.tex);
+            gl.uniform2f(uDir, 0.0, 1.0);
+            gl.uniform1i(uFirst, 0); 
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            let temp = currFBO; currFBO = nextFBO; nextFBO = temp;
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, nextFBO.fbo);
+            gl.bindTexture(gl.TEXTURE_2D, currFBO.tex);
+            gl.uniform2f(uDir, 1.0, 0.0);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            temp = currFBO; currFBO = nextFBO; nextFBO = temp;
+        }
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); 
+        gl.viewport(0, 0, state.width, state.height);
+        gl.useProgram(state.programs.composite);
+        bindQuad(state.programs.composite);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, state.fboBase.tex);
+        gl.uniform1i(gl.getUniformLocation(state.programs.composite, "u_base"), 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, currFBO.tex);
+        gl.uniform1i(gl.getUniformLocation(state.programs.composite, "u_bloom"), 1);
+        gl.uniform1f(gl.getUniformLocation(state.programs.composite, "u_bloomStrength"), document.getElementById('bloomStrength').value / 100);
+        gl.uniform1f(gl.getUniformLocation(state.programs.composite, "u_grain"), document.getElementById('grain').value / 100);
+        gl.uniform1f(gl.getUniformLocation(state.programs.composite, "u_vignette"), document.getElementById('vignette').value / 100);
+        gl.uniform1f(gl.getUniformLocation(state.programs.composite, "u_aberration"), document.getElementById('aberration').value / 100);
+        gl.uniform1f(gl.getUniformLocation(state.programs.composite, "u_time"), Date.now() / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    function bindQuad(prog) {
+        const posLoc = gl.getAttribLocation(prog, "a_position");
+        const texLoc = gl.getAttribLocation(prog, "a_texCoord");
+        gl.enableVertexAttribArray(posLoc);
+        gl.enableVertexAttribArray(texLoc);
+        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
+        gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, 16, 8);
+    }
+
+    function bindUniformsPreprocess() {
+        const p = state.programs.preprocess;
+        const getVal = (id) => parseInt(document.getElementById(id).value);
+        gl.uniform1f(gl.getUniformLocation(p, "u_exposure"), getVal('exposure')/100);
+        gl.uniform1f(gl.getUniformLocation(p, "u_contrast"), getVal('contrast')/100);
+        gl.uniform1f(gl.getUniformLocation(p, "u_saturation"), getVal('saturation')/100);
+        gl.uniform1f(gl.getUniformLocation(p, "u_temp"), getVal('temperature')/50);
+        gl.uniform1f(gl.getUniformLocation(p, "u_highs"), getVal('highlights')/100);
+        gl.uniform1f(gl.getUniformLocation(p, "u_shadows"), getVal('shadows')/100);
+        gl.uniform1f(gl.getUniformLocation(p, "u_bloomThresh"), getVal('bloomThreshold')/100);
+    }
+
+    const inputs = ['bloomStrength','bloomThreshold','bloomRadius','grain','vignette','aberration','temperature','exposure','contrast','saturation','highlights','shadows'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        const disp = document.getElementById(id + 'Val');
+        el.addEventListener('input', (e) => {
+            if(disp) {
+                let val = e.target.value;
+                if(id === 'bloomThreshold') val = (val/100).toFixed(2);
+                if(id === 'bloomStrength') val = (val/100).toFixed(1);
+                disp.textContent = val;
+            }
+            requestAnimationFrame(render);
         });
-    </script>
+    });
+
+    const compareBtn = document.getElementById('compareBtn');
+    const compareLabel = document.getElementById('compareLabel');
+    const startCompare = (e) => { e.preventDefault(); state.isComparing = true; compareLabel.classList.remove('hidden'); render(); };
+    const endCompare = (e) => { e.preventDefault(); state.isComparing = false; compareLabel.classList.add('hidden'); render(); };
+    compareBtn.addEventListener('mousedown', startCompare);
+    compareBtn.addEventListener('mouseup', endCompare);
+    compareBtn.addEventListener('mouseleave', endCompare);
+    compareBtn.addEventListener('touchstart', startCompare);
+    compareBtn.addEventListener('touchend', endCompare);
+
+    const uploadInput = document.getElementById('uploadInput');
+    uploadInput.addEventListener('change', (e) => {
+        if(e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (evt) => loadImage(evt.target.result);
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#8b5cf6'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'transparent'; });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); dropZone.style.borderColor = 'transparent';
+        if(e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (evt) => loadImage(evt.target.result);
+            reader.readAsDataURL(e.dataTransfer.files[0]);
+        }
+    });
+
+    const saveModal = document.getElementById('saveModal');
+    const saveImg = document.getElementById('saveImg');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        render();
+        const dataURL = canvas.toDataURL('image/png', 1.0);
+        saveImg.src = dataURL;
+        saveModal.classList.add('active');
+    });
+    closeModalBtn.addEventListener('click', () => saveModal.classList.remove('active'));
+    saveModal.addEventListener('click', (e) => { if(e.target === saveModal) saveModal.classList.remove('active'); });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            el.value = el.getAttribute('value') || 0;
+            el.dispatchEvent(new Event('input'));
+        });
+    });
+
+    initGL();
+</script>
 </body>
 </html>
