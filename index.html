@@ -1,39 +1,94 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Web Tools</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { @apply bg-gray-950 text-gray-200 font-sans; }
-    .tool-card:hover { @apply transform -translate-y-1 shadow-xl; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leo's Dev Tools - 主页</title>
+    
+<script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        /* 继承您的 Deepglow 颜色配置 */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' },
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed', glow: 'rgba(139, 92, 246, 0.5)' }
+                    },
+                    fontFamily: { mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'] }
+                }
+            }
+        }
+        @layer base {
+            body {
+                @apply font-sans bg-gray-900 text-gray-200; /* 主页使用深色主题 */
+            }
+            h1, h2, h3 {
+                @apply font-bold text-white;
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
+    
+<header class="bg-gray-950/80 backdrop-blur-md text-white shadow-lg p-4 border-b border-gray-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-extrabold tracking-tight hover:text-accent-500 transition-colors">
+                <span class="inline-block transform hover:scale-105 transition-transform">✨ Leo's Dev Tools</span>
+            </a>
+            
+</div>
+    </header>
 
-  <!-- 侧边栏 -->
-  <aside id="shared-sidebar" class="fixed top-0 left-0 h-full w-64 z-30"></aside>
+    
+<main class="flex-grow container mx-auto px-4 py-12">
+        <section class="text-center mb-16">
+            <h2 class="text-5xl font-extrabold mb-4 text-white">我的工具箱</h2>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                欢迎探索我开发的一些实用工具。这些工具大多利用 WebGL/GPU 加速，旨在提供快速且高性能的体验。
+            </p>
+        </section>
 
-  <!-- 主内容 -->
-  <div class="ml-64 p-8">
-    <h1 class="text-3xl font-bold text-white mb-2">🛠️ 我的 Web 工具集</h1>
-    <p class="text-gray-400 mb-8">精选实用小工具，全部运行在浏览器中</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            
+            <a href="tools/deepglow.html" class="block">
+                <div class="bg-gray-850 rounded-xl shadow-2xl hover:shadow-accent-500/20 transform hover:-translate-y-1 transition-all duration-300 p-8 flex flex-col justify-between h-full border border-gray-700 hover:border-accent-500">
+                    <div>
+                        <div class="text-6xl mb-4 text-accent-500">⚡</div>
+                        <h3 class="text-3xl font-semibold mb-3 text-white">PhotoGlow Ultimate</h3>
+                        <p class="text-gray-400 text-base">
+                            GPU 加速的图像处理工具，专注于添加艺术性的深度辉光 (Deep Glow)、胶片颗粒和色调调整效果。
+                        </p>
+                    </div>
+                    <span class="mt-6 inline-block bg-accent-600 text-white text-sm px-5 py-2 rounded-full hover:bg-accent-500 transition-colors font-medium self-start">立即使用</span>
+                </div>
+            </a>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <a href="./tools/deepglow.html" class="tool-card block p-6 bg-gray-800/50 rounded-xl border border-gray-700 transition-all">
-        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center mb-4">
-          <i class="fas fa-bolt text-white"></i>
+            <a href="#" class="block opacity-70 cursor-not-allowed">
+                <div class="bg-gray-850 rounded-xl shadow-2xl p-8 flex flex-col justify-between h-full border border-gray-700">
+                    <div>
+                        <div class="text-6xl mb-4 text-green-500">🔧</div>
+                        <h3 class="text-3xl font-semibold mb-3 text-white">Tool B (待定)</h3>
+                        <p class="text-gray-400 text-base">
+                            [未来的工具介绍：例如，一个实用的 WebGL 几何体可视化工具。]
+                        </p>
+                    </div>
+                    <span class="mt-6 inline-block bg-gray-600 text-gray-300 text-sm px-5 py-2 rounded-full font-medium self-start">即将推出</span>
+                </div>
+            </a>
+
+            <div class="bg-gray-850 rounded-xl shadow-inner p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-700 text-gray-500">
+                <div class="text-6xl mb-4">➕</div>
+                <h3 class="text-2xl font-semibold mb-2">添加新工具</h3>
+                <p class="text-base">期待您的下一个创意项目！</p>
+                
+</div>
         </div>
-        <h2 class="text-xl font-bold text-white">PhotoGlow Ultimate</h2>
-        <p class="text-gray-400 mt-2">WebGL 驱动的高级图片辉光滤镜</p>
-      </a>
+    </main>
 
-      <!-- 更多工具卡片... -->
-    </div>
-  </div>
-
-  <script src="./shared/layout.js"></script>
+    
+<footer class="bg-gray-950 text-gray-500 text-center p-6 mt-8 border-t border-gray-800 shrink-0">
+        <p>&copy; 2025 Leo. All rights reserved. | Built on GitHub Pages</p>
+    </footer>
 </body>
 </html>
