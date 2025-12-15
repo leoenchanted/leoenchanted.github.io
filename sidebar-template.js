@@ -7,10 +7,11 @@
 function getSidebarTemplate(currentPath) {
     // 定义导航链接及其路径
     const navItems = [
-        { href: '../index.html', icon: 'fas fa-home', text: '首页', id: 'index' },
-        { href: 'deepglow.html', icon: 'fas fa-bolt', text: 'PhotoGlow Ultimate', id: 'deepglow' },
-        { href: 'tool-b.html', icon: 'fas fa-chart-line', text: 'Tool B (数据可视化)', id: 'tool-b' },
-        { href: 'tool-c.html', icon: 'fas fa-code', text: 'Tool C (代码片段)', id: 'tool-c', disabled: true },
+    { href: '../index.html', icon: 'fas fa-home', text: '首页', id: 'index' },
+    { href: 'deepglow.html', icon: 'fas fa-bolt', text: 'PhotoGlow Ultimate', id: 'deepglow' },
+    { href: 'tool-b.html', icon: 'fas fa-chart-line', text: 'Tool B (数据可视化)', id: 'tool-b' },
+    { href: 'mesh-gradient.html', icon: 'fas fa-palette', text: 'Pro Mesh Gradient V3', id: 'mesh-gradient' },
+    { href: 'tool-c.html', icon: 'fas fa-code', text: 'Tool C (代码片段)', id: 'tool-c', disabled: true },
     ];
 
     // 确定当前页面的标识符 (e.g., 'deepglow.html' -> 'deepglow')
