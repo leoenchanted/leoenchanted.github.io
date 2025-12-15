@@ -6,89 +6,115 @@
     <title>Leo's Dev Tools - 主页</title>
     
 <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-        /* 继承您的 Deepglow 颜色配置 */
+    <style>
+        /* 避免 WebGL/GPU 相关的 CSS 干扰主页 */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+    </style>
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' },
-                        accent: { 500: '#8b5cf6', 600: '#7c3aed', glow: 'rgba(139, 92, 246, 0.5)' }
+                        // 使用蓝色作为主要科技色
+                        accent: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }, 
+                        primary: { 500: '#3b82f6', 600: '#2563eb' }
                     },
-                    fontFamily: { mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'] }
+                    keyframes: {
+                        'gradient-flow': {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    },
+                    animation: {
+                        'gradient-flow': 'gradient-flow 30s ease infinite',
+                        'fade-in-1': 'fade-in 0.6s ease-out 0.2s backwards',
+                        'fade-in-2': 'fade-in 0.6s ease-out 0.4s backwards',
+                        'fade-in-3': 'fade-in 0.6s ease-out 0.6s backwards',
+                    },
                 }
             }
         }
-        @layer base {
-            body {
-                @apply font-sans bg-gray-900 text-gray-200; /* 主页使用深色主题 */
-            }
-            h1, h2, h3 {
-                @apply font-bold text-white;
-            }
-        }
-    </style>
+    </script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-gray-950 text-gray-200 relative overflow-x-hidden">
     
-<header class="bg-gray-950/80 backdrop-blur-md text-white shadow-lg p-4 border-b border-gray-800">
+    <div class="fixed inset-0 z-0 opacity-20">
+        <div class="w-full h-full bg-gradient-to-r from-primary-500/30 via-gray-950 to-accent-600/30 bg-[length:300%_100%] animate-gradient-flow"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg viewBox=\'0 0 8 8\' xmlns=\'http://www.w3.org/2000/svg\'><circle cx=\'1\' cy=\'1\' r=\'1\' fill=\'#1f2937\'/></svg>')] bg-[size:24px_24px] opacity-5"></div>
+    </div>
+
+    
+    <header class="sticky top-0 h-16 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/50 flex items-center px-6 z-30 shrink-0">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-3xl font-extrabold tracking-tight hover:text-accent-500 transition-colors">
+             <a href="index.html" class="text-3xl font-extrabold tracking-wider text-white hover:text-primary-500 transition-colors">
                 <span class="inline-block transform hover:scale-105 transition-transform">✨ Leo's Dev Tools</span>
             </a>
-            
-</div>
+        </div>
     </header>
 
     
-<main class="flex-grow container mx-auto px-4 py-12">
+    <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
         <section class="text-center mb-16">
-            <h2 class="text-5xl font-extrabold mb-4 text-white">我的工具箱</h2>
-            <p class="text-xl text-gray-400 max-w-3xl mx-auto">
-                欢迎探索我开发的一些实用工具。这些工具大多利用 WebGL/GPU 加速，旨在提供快速且高性能的体验。
+            <h2 class="text-6xl font-extrabold mb-4 text-white tracking-tight animate-fade-in-1">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-white">CODE | TOOLS | DEMO</span>
+            </h2>
+            <p class="text-xl text-gray-400 max-w-4xl mx-auto animate-fade-in-2">
+                欢迎来到我的 WebGL 与 GPU 加速工具库。这里展示了高性能、高创意的实验性小工具。
             </p>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <a href="tools/deepglow.html" class="block">
-                <div class="bg-gray-850 rounded-xl shadow-2xl hover:shadow-accent-500/20 transform hover:-translate-y-1 transition-all duration-300 p-8 flex flex-col justify-between h-full border border-gray-700 hover:border-accent-500">
-                    <div>
-                        <div class="text-6xl mb-4 text-accent-500">⚡</div>
+            <a href="tools/deepglow.html" class="block animate-fade-in-2">
+                <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl border border-primary-500/50 shadow-2xl hover:shadow-primary-500/30 transform hover:-translate-y-2 transition-all duration-300 p-8 flex flex-col justify-between h-full relative overflow-hidden">
+                    <div class="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="text-6xl mb-4 text-primary-500"><i class="fas fa-bolt"></i></div>
                         <h3 class="text-3xl font-semibold mb-3 text-white">PhotoGlow Ultimate</h3>
                         <p class="text-gray-400 text-base">
-                            GPU 加速的图像处理工具，专注于添加艺术性的深度辉光 (Deep Glow)、胶片颗粒和色调调整效果。
+                            GPU 驱动的图像处理工具，实现景深感知辉光、电影颗粒和精确色彩校正。
                         </p>
                     </div>
-                    <span class="mt-6 inline-block bg-accent-600 text-white text-sm px-5 py-2 rounded-full hover:bg-accent-500 transition-colors font-medium self-start">立即使用</span>
+                    <span class="mt-6 inline-block bg-primary-600 text-white text-sm px-5 py-2 rounded-full hover:bg-primary-500 transition-colors font-medium self-start relative z-10">进入工具</span>
                 </div>
             </a>
 
-            <a href="#" class="block opacity-70 cursor-not-allowed">
-                <div class="bg-gray-850 rounded-xl shadow-2xl p-8 flex flex-col justify-between h-full border border-gray-700">
-                    <div>
-                        <div class="text-6xl mb-4 text-green-500">🔧</div>
-                        <h3 class="text-3xl font-semibold mb-3 text-white">Tool B (待定)</h3>
+            <a href="tools/tool-b.html" class="block animate-fade-in-3">
+                <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl border border-green-500/50 shadow-2xl hover:shadow-green-500/30 transform hover:-translate-y-2 transition-all duration-300 p-8 flex flex-col justify-between h-full relative overflow-hidden">
+                    <div class="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="text-6xl mb-4 text-green-500"><i class="fas fa-chart-line"></i></div>
+                        <h3 class="text-3xl font-semibold mb-3 text-white">Tool B (Data Vis)</h3>
                         <p class="text-gray-400 text-base">
-                            [未来的工具介绍：例如，一个实用的 WebGL 几何体可视化工具。]
+                            高性能 3D 数据可视化工具，利用 WebGL 渲染大规模实时数据集。
                         </p>
                     </div>
-                    <span class="mt-6 inline-block bg-gray-600 text-gray-300 text-sm px-5 py-2 rounded-full font-medium self-start">即将推出</span>
+                    <span class="mt-6 inline-block bg-green-600 text-white text-sm px-5 py-2 rounded-full hover:bg-green-500 transition-colors font-medium self-start relative z-10">进入工具</span>
                 </div>
             </a>
 
-            <div class="bg-gray-850 rounded-xl shadow-inner p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-700 text-gray-500">
-                <div class="text-6xl mb-4">➕</div>
-                <h3 class="text-2xl font-semibold mb-2">添加新工具</h3>
-                <p class="text-base">期待您的下一个创意项目！</p>
-                
-</div>
+            <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl shadow-inner p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-700 text-gray-500 animate-fade-in-3">
+                <div class="text-6xl mb-4 text-gray-600">➕</div>
+                <h3 class="text-2xl font-semibold mb-2">Next Project</h3>
+                <p class="text-base">敬请期待更多 Web 实验和实用工具！</p>
+            </div>
         </div>
     </main>
 
     
-<footer class="bg-gray-950 text-gray-500 text-center p-6 mt-8 border-t border-gray-800 shrink-0">
-        <p>&copy; 2025 Leo. All rights reserved. | Built on GitHub Pages</p>
+    <footer class="bg-gray-950/80 backdrop-blur-sm text-gray-600 text-center p-6 border-t border-gray-800/50 shrink-0 relative z-10">
+        <p>&copy; 2025 Leo. All rights reserved. | <span class="font-mono text-xs">V 1.0</span></p>
     </footer>
 </body>
 </html>
