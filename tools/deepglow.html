@@ -7,13 +7,16 @@
     
 <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' },
-                        accent: { 500: '#8b5cf6', 600: '#7c3aed', glow: 'rgba(139, 92, 246, 0.5)' }
+                        // 使用新的主要科技色
+                        accent: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }, 
+                        primary: { 500: '#3b82f6', 600: '#2563eb' }
                     },
                     fontFamily: { mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'] }
                 }
@@ -21,7 +24,10 @@
         }
     </script>
     <style>
-        /* 从您的 Deepglow 文件继承的自定义样式 */
+        /* 新增：极简玻璃侧边栏 UI */
+        .glass-panel { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-left: 1px solid rgba(255,255,255,0.05); }
+
+        /* 兼容 Deepglow 的其余样式 */
         input[type=range] { 
             -webkit-appearance: none; 
             width: 100%; 
@@ -30,12 +36,12 @@
             cursor: pointer; 
             touch-action: none; 
         }
+        /* ... 其他 Deepglow 样式保持不变 ... */
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; }
         input[type=range]:hover::-webkit-slider-runnable-track { background: #4b5563; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #e5e7eb; margin-top: -5px; border: 2px solid #1f2937; transition: all 0.2s ease; }
-        input[type=range]:focus::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { background: #8b5cf6; border-color: #fff; transform: scale(1.2); box-shadow: 0 0 15px rgba(139, 92, 246, 0.8); }
+        input[type=range]:focus::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { background: #3b82f6; border-color: #fff; transform: scale(1.2); box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
         .canvas-bg { background-color: #030712; background-image: linear-gradient(45deg, #0f172a 25%, transparent 25%), linear-gradient(-45deg, #0f172a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0f172a 75%), linear-gradient(-45deg, transparent 75%, #0f172a 75%); background-size: 24px 24px; }
-        .glass-panel { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid rgba(255,255,255,0.05); }
         .value-badge { font-family: 'ui-monospace', monospace; font-size: 11px; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 4px; min-width: 36px; text-align: right; border: 1px solid rgba(255,255,255,0.1); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -43,26 +49,11 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-        /* 新增：侧边栏和内容区的过渡和布局控制 */
-        .sidebar {
-            transition: transform 0.3s ease-out;
-        }
-        .content-wrap {
-            transition: margin-left 0.3s ease-out;
-        }
-        .overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 40; 
-        }
-
-        /* 您的 Deepglow 移动端布局 */
         @media (max-width: 768px) {
             .mobile-layout { flex-direction: column; }
             .canvas-container-mobile { flex: 1; width: 100%; min-height: 0; }
             .mobile-panel { width: 100%; height: 50vh; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
             input[type=range]::-webkit-slider-thumb { height: 20px; width: 20px; margin-top: -8px; }
-            /* 调整主内容区在移动端适应侧边栏 */
             .deepglow-container { flex: 1; width: 100%; }
         }
         @media (min-width: 769px) { 
@@ -73,42 +64,13 @@
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex flex-col">
     
-    <header class="h-16 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 flex items-center px-4 md:px-6 z-20 shrink-0 relative">
-        <div class="flex items-center">
-            <button id="sidebar-toggle" class="lg:hidden text-white focus:outline-none mr-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-            <a href="../index.html" class="text-2xl font-extrabold tracking-tight text-white hover:text-accent-500 transition-colors">
-                <span class="inline-block transform hover:scale-105 transition-transform">✨ Leo's Dev Tools</span>
-            </a>
-        </div>
-        
-</header>
+    <div class="main-content-wrap flex-1 flex flex-col transition-all duration-300">
 
-    
-    <div class="flex flex-1 relative overflow-hidden">
-        
-        <aside id="sidebar" class="sidebar bg-gray-950 text-gray-200 w-64 p-6 space-y-6 flex flex-col flex-shrink-0
-                                   fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0
-                                   lg:relative lg:shadow-xl lg:z-auto z-50 transition-transform duration-300 ease-in-out border-r border-gray-800">
-            <h2 class="text-xl font-bold text-white mb-4">我的工具箱</h2>
-            <nav class="flex-grow">
-                <ul class="space-y-2">
-                    <li><a href="../index.html" class="block py-2 px-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center"><span class="mr-2">🏠</span> 首页</a></li>
-                    <li><a href="deepglow.html" class="block py-2 px-3 rounded-lg bg-accent-600/80 text-white hover:bg-accent-500 transition-colors flex items-center"><span class="mr-2">⚡</span> PhotoGlow Ultimate</a></li>
-                    <li><a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center opacity-50 cursor-not-allowed"><span class="mr-2">🔧</span> Tool B (待定)</a></li>
-                    <li><a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center opacity-50 cursor-not-allowed"><span class="mr-2">📝</span> Tool C (待定)</a></li>
-                    
-</ul>
-            </nav>
-        </aside>
-
-        
-<div id="sidebar-overlay" class="overlay hidden fixed inset-0 z-40 lg:hidden"></div>
-
-        
-        <main id="content-area" class="content-wrap flex-grow relative overflow-hidden flex flex-col h-full lg:ml-0">
-            <header class="h-14 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 md:px-6 z-20 shrink-0">
+        <header class="h-14 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 md:px-6 z-20 shrink-0 relative">
+            <div class="flex items-center">
+                <button id="sidebar-toggle" class="lg:hidden text-white focus:outline-none mr-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
                 <div class="flex items-center gap-2 md:gap-3">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-600 to-blue-600 flex items-center justify-center shadow-lg shadow-accent-500/20">
                         <i class="fas fa-bolt text-white text-sm"></i>
@@ -117,138 +79,139 @@
                         <h1 class="font-bold text-sm md:text-base tracking-wider text-white leading-tight">PhotoGlow <span class="text-accent-500">Ultimate</span></h1>
                     </div>
                 </div>
-                <div class="flex gap-2 md:gap-3">
-                    <label for="uploadInput" class="cursor-pointer bg-gray-800 hover:bg-gray-700 hover:text-white border border-gray-700 text-gray-300 transition-all duration-200 px-3 md:px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2">
-                        <i class="fas fa-folder-open text-xs"></i>
-                        <span class="hidden md:inline">打开图片</span>
-                        <span class="md:hidden">打开</span>
-                    </label>
-                    <input type="file" id="uploadInput" accept="image/*" class="hidden">
-                    
-                    <button id="compareBtn" class="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50" disabled title="按住对比原图">
-                        <i class="fas fa-eye text-xs"></i>
-                        <span class="hidden md:inline">按住对比</span>
-                    </button>
-
-                    <button id="downloadBtn" class="bg-accent-600 hover:bg-accent-500 text-white shadow-lg shadow-accent-600/30 transition-all duration-200 px-3 md:px-5 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        <i class="fas fa-file-export text-xs"></i>
-                        <span>导出</span>
-                    </button>
-                </div>
-            </header>
+            </div>
             
-            <main class="flex-1 flex mobile-layout overflow-hidden relative w-full h-full">
-                <div class="relative flex items-center justify-center p-4 canvas-bg overflow-hidden group canvas-container-mobile" id="dropZone">
-                    <div id="emptyState" class="text-center pointer-events-none flex flex-col items-center transition-opacity duration-500">
-                        <div class="w-20 h-20 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center mb-4 shadow-2xl">
-                            <i class="fas fa-plus text-gray-700 text-3xl"></i>
-                        </div>
-                        <p class="text-lg font-light text-gray-400 tracking-wide">拖入图片 或 点击打开</p>
-                        <p class="text-xs mt-2 text-gray-600 font-mono border border-gray-800 px-3 py-1 rounded-full">GPU Accelerated</p>
-                    </div>
-                    
-                    <canvas id="glCanvas" class="shadow-2xl shadow-black/50 object-contain hidden" style="max-width: 100%; max-height: 100%;"></canvas>
-                    
-                    <div id="compareLabel" class="absolute top-4 left-4 bg-red-500/80 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur hidden pointer-events-none z-20">
-                        ORIGINAL
-                    </div>
+            <div class="flex gap-2 md:gap-3">
+                <label for="uploadInput" class="cursor-pointer bg-gray-800 hover:bg-gray-700 hover:text-white border border-gray-700 text-gray-300 transition-all duration-200 px-3 md:px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2">
+                    <i class="fas fa-folder-open text-xs"></i>
+                    <span class="hidden md:inline">打开图片</span>
+                    <span class="md:hidden">打开</span>
+                </label>
+                <input type="file" id="uploadInput" accept="image/*" class="hidden">
+                
+                <button id="compareBtn" class="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 transition-all duration-200 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50" disabled title="按住对比原图">
+                    <i class="fas fa-eye text-xs"></i>
+                    <span class="hidden md:inline">按住对比</span>
+                </button>
 
-                    <div id="loadingIndicator" class="absolute inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
-                        <div class="w-10 h-10 border-4 border-gray-800 border-t-accent-500 rounded-full animate-spin"></div>
-                        <p class="text-xs text-accent-500 mt-3 font-mono">PROCESSING...</p>
+                <button id="downloadBtn" class="bg-accent-600 hover:bg-accent-500 text-white shadow-lg shadow-accent-600/30 transition-all duration-200 px-3 md:px-5 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-file-export text-xs"></i>
+                    <span>导出</span>
+                </button>
+            </div>
+        </header>
+        
+        <main class="flex-1 flex mobile-layout overflow-hidden relative w-full h-full">
+            <div class="relative flex items-center justify-center p-4 canvas-bg overflow-hidden group canvas-container-mobile" id="dropZone">
+                <div id="emptyState" class="text-center pointer-events-none flex flex-col items-center transition-opacity duration-500">
+                    <div class="w-20 h-20 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center mb-4 shadow-2xl">
+                        <i class="fas fa-plus text-gray-700 text-3xl"></i>
                     </div>
+                    <p class="text-lg font-light text-gray-400 tracking-wide">拖入图片 或 点击打开</p>
+                    <p class="text-xs mt-2 text-gray-600 font-mono border border-gray-800 px-3 py-1 rounded-full">GPU Accelerated</p>
+                </div>
+                
+                <canvas id="glCanvas" class="shadow-2xl shadow-black/50 object-contain hidden" style="max-width: 100%; max-height: 100%;"></canvas>
+                
+                <div id="compareLabel" class="absolute top-4 left-4 bg-red-500/80 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur hidden pointer-events-none z-20">
+                    ORIGINAL
                 </div>
 
-                <aside class="glass-panel shrink-0 z-10 shadow-2xl relative mobile-panel">
-                    <div class="px-4 py-3 border-b border-gray-800 flex justify-between items-center bg-gray-900/40 shrink-0">
-                        <div class="flex items-center gap-2 text-gray-400">
-                            <i class="fas fa-sliders-h text-xs"></i>
-                            <h2 class="font-bold text-xs uppercase tracking-widest">Parameters</h2>
+                <div id="loadingIndicator" class="absolute inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+                    <div class="w-10 h-10 border-4 border-gray-800 border-t-accent-500 rounded-full animate-spin"></div>
+                    <p class="text-xs text-accent-500 mt-3 font-mono">PROCESSING...</p>
+                </div>
+            </div>
+
+            <aside class="glass-panel shrink-0 z-10 shadow-2xl relative mobile-panel">
+                <div class="px-4 py-3 border-b border-gray-800 flex justify-between items-center bg-gray-900/40 shrink-0">
+                    <div class="flex items-center gap-2 text-accent-400">
+                        <i class="fas fa-sliders-h text-xs"></i>
+                        <h2 class="font-bold text-xs uppercase tracking-widest">Parameters</h2>
+                    </div>
+                    <button id="resetBtn" class="text-[10px] text-gray-500 hover:text-white transition-colors bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded border border-gray-700">RESET</button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5 pb-10">
+                    
+                    <section>
+                        <div class="flex items-center gap-2 text-accent-400 mb-3">
+                            <i class="fas fa-sun text-sm"></i>
+                            <span class="font-bold text-sm tracking-wide">Deep Glow (辉光)</span>
                         </div>
-                        <button id="resetBtn" class="text-[10px] text-gray-500 hover:text-white transition-colors bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded border border-gray-700">RESET</button>
-                    </div>
+                        <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>强度 (Intensity)</span><span id="bloomStrengthVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="bloomStrength" min="0" max="300" value="0" step="1">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>阈值 (Threshold)</span><span id="bloomThresholdVal" class="value-badge">0.70</span></div>
+                                <input type="range" id="bloomThreshold" min="0" max="100" value="70" step="1">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>扩散半径 (Radius)</span><span id="bloomRadiusVal" class="value-badge">1.0</span></div>
+                                <input type="range" id="bloomRadius" min="0" max="500" value="100" step="1">
+                            </div>
+                        </div>
+                    </section>
 
-                    <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5 pb-10">
-                        
-                        <section>
-                            <div class="flex items-center gap-2 text-accent-400 mb-3">
-                                <i class="fas fa-sun text-sm"></i>
-                                <span class="font-bold text-sm tracking-wide">Deep Glow (辉光)</span>
+                    <section>
+                        <div class="flex items-center gap-2 text-yellow-200/80 mb-3">
+                            <i class="fas fa-film text-sm"></i>
+                            <span class="font-bold text-sm tracking-wide">Film Look (胶片)</span>
+                        </div>
+                        <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>颗粒 (Grain)</span><span id="grainVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="grain" min="0" max="100" value="0" step="1">
                             </div>
-                            <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>强度 (Intensity)</span><span id="bloomStrengthVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="bloomStrength" min="0" max="300" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>阈值 (Threshold)</span><span id="bloomThresholdVal" class="value-badge">0.70</span></div>
-                                    <input type="range" id="bloomThreshold" min="0" max="100" value="70" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>扩散半径 (Radius)</span><span id="bloomRadiusVal" class="value-badge">1.0</span></div>
-                                    <input type="range" id="bloomRadius" min="0" max="500" value="100" step="1">
-                                </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>暗角 (Vignette)</span><span id="vignetteVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="vignette" min="0" max="100" value="0" step="1">
                             </div>
-                        </section>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色差 (Aberration)</span><span id="aberrationVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="aberration" min="0" max="100" value="0" step="1">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色温 (Temp)</span><span id="temperatureVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="temperature" min="-50" max="50" value="0" step="1" style="background: linear-gradient(90deg, #93c5fd 0%, #374151 50%, #fcd34d 100%);">
+                            </div>
+                        </div>
+                    </section>
 
-                        <section>
-                            <div class="flex items-center gap-2 text-yellow-200/80 mb-3">
-                                <i class="fas fa-film text-sm"></i>
-                                <span class="font-bold text-sm tracking-wide">Film Look (胶片)</span>
+                    <section>
+                        <div class="flex items-center gap-2 text-blue-300/80 mb-3">
+                            <i class="fas fa-adjust text-sm"></i>
+                            <span class="font-bold text-sm tracking-wide">Tone (影调)</span>
+                        </div>
+                        <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 grid grid-cols-2 gap-3">
+                            <div class="col-span-2">
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>曝光 (Exposure)</span><span id="exposureVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="exposure" min="-100" max="100" value="0" step="1">
                             </div>
-                            <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>颗粒 (Grain)</span><span id="grainVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="grain" min="0" max="100" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>暗角 (Vignette)</span><span id="vignetteVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="vignette" min="0" max="100" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色差 (Aberration)</span><span id="aberrationVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="aberration" min="0" max="100" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>色温 (Temp)</span><span id="temperatureVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="temperature" min="-50" max="50" value="0" step="1" style="background: linear-gradient(90deg, #93c5fd 0%, #374151 50%, #fcd34d 100%);">
-                                </div>
+                            <div class="col-span-2">
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>对比度 (Contrast)</span><span id="contrastVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="contrast" min="-100" max="100" value="0" step="1">
                             </div>
-                        </section>
-
-                        <section>
-                            <div class="flex items-center gap-2 text-blue-300/80 mb-3">
-                                <i class="fas fa-adjust text-sm"></i>
-                                <span class="font-bold text-sm tracking-wide">Tone (影调)</span>
+                            <div class="col-span-2">
+                                <div class="flex justify-between text-xs mb-1 text-gray-400"><span>饱和度 (Sat)</span><span id="saturationVal" class="value-badge">0.0</span></div>
+                                <input type="range" id="saturation" min="-100" max="100" value="0" step="1">
                             </div>
-                            <div class="bg-gray-900/50 rounded-xl p-3 border border-gray-800 grid grid-cols-2 gap-3">
-                                <div class="col-span-2">
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>曝光 (Exposure)</span><span id="exposureVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="exposure" min="-100" max="100" value="0" step="1">
-                                </div>
-                                <div class="col-span-2">
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>对比度 (Contrast)</span><span id="contrastVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="contrast" min="-100" max="100" value="0" step="1">
-                                </div>
-                                <div class="col-span-2">
-                                    <div class="flex justify-between text-xs mb-1 text-gray-400"><span>饱和度 (Sat)</span><span id="saturationVal" class="value-badge">0.0</span></div>
-                                    <input type="range" id="saturation" min="-100" max="100" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-500">Highs</div>
-                                    <input type="range" id="highlights" min="-100" max="100" value="0" step="1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1 text-gray-500">Shadows</div>
-                                    <input type="range" id="shadows" min="-100" max="100" value="0" step="1">
-                                </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-500">Highs</div>
+                                <input type="range" id="highlights" min="-100" max="100" value="0" step="1">
                             </div>
-                        </section>
-                        
-                        <div class="h-8 md:hidden"></div>
-                    </div>
-                </aside>
-            </main>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1 text-gray-500">Shadows</div>
+                                <input type="range" id="shadows" min="-100" max="100" value="0" step="1">
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div class="h-8 md:hidden"></div>
+                </div>
+            </aside>
         </main>
     </div>
     
@@ -266,34 +229,15 @@
     </div>
 
 
+    <script src="../sidebar-template.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-            const contentArea = document.getElementById('content-area'); // 主内容区
-
-            function toggleSidebar() {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarOverlay.classList.toggle('hidden');
-            }
-
-            sidebarToggle.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', toggleSidebar); // 点击遮罩也关闭侧边栏
-
-            // 监听窗口大小变化，确保桌面端侧边栏默认显示
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024) { // lg breakpoint
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebarOverlay.classList.add('hidden');
-                }
-            });
-        });
+        // 1. 注入侧边栏 (Deepglow 页面位于 tools/ 目录下，所以传入 deepglow.html)
+        injectSidebar('deepglow.html');
     </script>
     
     <script>
         // --- WebGL Shader Source Code ---
-        
+        // ... (您的 WebGL 渲染代码, 保持不变) ...
         const VS_SOURCE = `
             attribute vec2 a_position;
             attribute vec2 a_texCoord;
@@ -664,7 +608,7 @@
         });
 
         const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#8b5cf6'; });
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#3b82f6'; });
         dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'transparent'; });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault(); dropZone.style.borderColor = 'transparent';
