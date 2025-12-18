@@ -1,0 +1,16 @@
+{
+  "name": "Forme Tool",
+  "short_name": "F-T",
+  "description": "这是一个tools",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
