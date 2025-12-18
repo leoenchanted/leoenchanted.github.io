@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leo's Dev Tools - 主页</title>
+     <!-- PWA 必需的 manifest 文件 -->
+  <link rel="manifest" href="./manifest.json" />
+
+  <!-- iOS Safari 支持 PWA 所需的 meta 标签 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="我的 PWA" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-192x192.png" />
+
+  <!-- 启用 service worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker 注册成功:', reg))
+          .catch(err => console.log('Service Worker 注册失败:', err));
+      });
+    }
+  </script>
     
 <script src="https://cdn.tailwindcss.com"></script>
     <style>
