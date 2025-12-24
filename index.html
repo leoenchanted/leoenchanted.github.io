@@ -2,138 +2,556 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leo's Dev Tools - 主页</title>
-     <!-- PWA 必需的 manifest 文件 -->
-  <link rel="manifest" href="./manifest.json" />
-
-  <!-- iOS Safari 支持 PWA 所需的 meta 标签 -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="我的 PWA" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-192x192.png" />
-
-  <!-- 启用 service worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('Service Worker 注册成功:', reg))
-          .catch(err => console.log('Service Worker 注册失败:', err));
-      });
-    }
-  </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Personal Space | Liquid Interaction</title>
     
-<script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        /* 避免 WebGL/GPU 相关的 CSS 干扰主页 */
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap');
 
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gray: { 850: '#1f2937', 900: '#111827', 950: '#030712' },
-                        // 使用蓝色作为主要科技色
-                        accent: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }, 
-                        primary: { 500: '#3b82f6', 600: '#2563eb' }
-                    },
-                    keyframes: {
-                        'gradient-flow': {
-                            '0%, 100%': { backgroundPosition: '0% 50%' },
-                            '50%': { backgroundPosition: '100% 50%' },
-                        },
-                        'fade-in': {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    },
-                    animation: {
-                        'gradient-flow': 'gradient-flow 30s ease infinite',
-                        'fade-in-1': 'fade-in 0.6s ease-out 0.2s backwards',
-                        'fade-in-2': 'fade-in 0.6s ease-out 0.4s backwards',
-                        'fade-in-3': 'fade-in 0.6s ease-out 0.6s backwards',
-                    },
-                }
-            }
+        /* --- 1. 全局变量与基础设置 --- */
+        :root {
+            /* 页面主题色 */
+            --bg-color: #f2f2f0;
+            --text-color: #1a1a1a;
+            
+            /* --- Liquid Bar 变量 (适配亮色主题) --- */
+            --bar-width: 320px; /* 稍微调窄适配4个图标 */
+            --bar-height: 70px;
+            --bar-padding: 6px; 
+            --ball-size: 58px; 
+            --ball-active-size: 72px; /* 拖拽时变大 */
+            --ball-radius-small: 16px; 
+            --ball-radius-large: 24px; 
+            --aberration-x: 0px; 
+            --aberration-opacity: 0;
+            --accent-color: 0, 0, 0; /* 选中颜色：纯黑 */
+            --default-color: 100, 100, 100;
         }
-    </script>
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 噪点纹理 */
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.05; z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* --- 2. 页面内容区域 (Main Content) --- */
+        main {
+            position: relative; z-index: 1; height: 100%; width: 100%;
+            overflow-y: auto; /* 允许内容滚动 */
+            padding-bottom: 120px; /* 为导航栏留空 */
+        }
+        
+        .page { display: none; opacity: 0; min-height: 80vh; }
+        .page.active { display: block; opacity: 1; }
+
+        .hero-text { font-size: clamp(3rem, 12vw, 8rem); line-height: 0.85; letter-spacing: -0.04em; font-weight: 800; }
+        .card-border { border: 1px solid rgba(0,0,0,0.15); transition: all 0.3s; background: white; }
+        .card-border:hover { border-color: black; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+        /* --- 3. 导航栏样式 (复刻你的代码逻辑，调整颜色) --- */
+        .prism-nav-wrapper {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000;
+        }
+
+        .prism-bar {
+            position: relative;
+            z-index: 10;
+            width: var(--bar-width);
+            height: var(--bar-height);
+            border-radius: 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 var(--bar-padding);
+            
+            /* 玻璃质感 - 亮色版 */
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.08),
+                inset 0 1px 0 rgba(255,255,255,1);
+        }
+
+        .prism-sphere {
+            position: absolute;
+            width: var(--ball-size); height: var(--ball-size);
+            top: 50%; left: 0; transform: translate(0, -50%);
+            cursor: grab; z-index: 100;
+            
+            /* 形状过渡：复刻你的逻辑 */
+            border-radius: var(--ball-radius-small); 
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        width 0.2s, height 0.2s, border-radius 0.2s;
+            will-change: transform, width, height, left;
+
+            /* 球体材质 - 这里的颜色很重要，要像果冻 */
+            background: rgba(0, 0, 0, 0.04); /* 极淡的黑色半透明 */
+            backdrop-filter: blur(4px);
+            box-shadow: 
+                inset 0 0 15px rgba(255,255,255,0.8), 
+                0 4px 10px rgba(0,0,0,0.05),
+                0 0 0 1px rgba(0,0,0,0.03);
+        }
+
+        .prism-sphere.dragging {
+            transition: width 0.2s, height 0.2s, border-radius 0.2s; /* 拖拽时只有大小变化是平滑的，位置跟随JS */
+            border-radius: var(--ball-radius-large);
+            cursor: grabbing;
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        /* 色散效果 */
+        .prism-sphere::before, .prism-sphere::after {
+            content: ''; position: absolute; inset: 0; border-radius: inherit;
+            pointer-events: none; mix-blend-mode: multiply; /* 亮色背景用 multiply */
+            opacity: var(--aberration-opacity); transition: opacity 0.1s;
+        }
+        .prism-sphere::before {
+            box-shadow: inset 3px 0 10px rgba(255, 0, 0, 0.15); /* 红 */
+            transform: translateX(var(--aberration-x));
+        }
+        .prism-sphere::after {
+            box-shadow: inset -3px 0 10px rgba(0, 255, 255, 0.15); /* 青 */
+            transform: translateX(calc(var(--aberration-x) * -1));
+        }
+
+        .icon-box {
+            position: relative; z-index: 10; flex: 1; height: 100%;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+        
+        .icon-box i {
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.3); /* 默认灰色 */
+            transition: color 0.2s;
+            will-change: transform;
+        }
+
+        .icon-box.active i {
+            color: black;
+            text-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-950 text-gray-200 relative overflow-x-hidden">
-    
-    <div class="fixed inset-0 z-0 opacity-20">
-        <div class="w-full h-full bg-gradient-to-r from-primary-500/30 via-gray-950 to-accent-600/30 bg-[length:300%_100%] animate-gradient-flow"></div>
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg viewBox=\'0 0 8 8\' xmlns=\'http://www.w3.org/2000/svg\'><circle cx=\'1\' cy=\'1\' r=\'1\' fill=\'#1f2937\'/></svg>')] bg-[size:24px_24px] opacity-5"></div>
-    </div>
+<body>
 
-    
-    <header class="sticky top-0 h-16 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/50 flex items-center px-6 z-30 shrink-0">
-        <div class="container mx-auto flex justify-between items-center">
-             <a href="index.html" class="text-3xl font-extrabold tracking-wider text-white hover:text-primary-500 transition-colors">
-                <span class="inline-block transform hover:scale-105 transition-transform">✨ Leo's Dev Tools</span>
-            </a>
-        </div>
-    </header>
+    <div class="noise"></div>
 
-    
-    <main class="flex-grow container mx-auto px-6 py-16 relative z-10">
-        <section class="text-center mb-16">
-            <h2 class="text-6xl font-extrabold mb-4 text-white tracking-tight animate-fade-in-1">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-white">CODE | TOOLS | DEMO</span>
-            </h2>
-            <p class="text-xl text-gray-400 max-w-4xl mx-auto animate-fade-in-2">
-                欢迎来到我的 WebGL 与 GPU 加速工具库。这里展示了高性能、高创意的实验性小工具。
-            </p>
+    <!-- MAIN CONTENT -->
+    <main id="content-container">
+        
+        <!-- Page 0: Home -->
+        <section id="page-0" class="page active p-6 md:p-12">
+            <div class="max-w-5xl mx-auto pt-10">
+                <div class="flex justify-between items-end border-b border-black pb-4 mb-10">
+                    <span class="text-xs font-bold tracking-[0.3em]">PORTFOLIO / 24</span>
+                    <i data-lucide="asterisk" class="w-6 h-6 animate-spin-slow"></i>
+                </div>
+                <h1 class="hero-text mb-8">LEO<br>ENCHANTED.</h1>
+                <p class="text-xl max-w-xl opacity-70 leading-relaxed">
+                    在极简主义与物理反馈之间寻找平衡。<br>
+                    试着按住下面的导航块，体验液态拖拽的乐趣。
+                </p>
+            </div>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            
-            <a href="tools/deepglow.html" class="block animate-fade-in-2">
-                <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl border border-primary-500/50 shadow-2xl hover:shadow-primary-500/30 transform hover:-translate-y-2 transition-all duration-300 p-8 flex flex-col justify-between h-full relative overflow-hidden">
-                    <div class="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="text-6xl mb-4 text-primary-500"><i class="fas fa-bolt"></i></div>
-                        <h3 class="text-3xl font-semibold mb-3 text-white">PhotoGlow Ultimate</h3>
-                        <p class="text-gray-400 text-base">
-                            GPU 驱动的图像处理工具，实现景深感知辉光、电影颗粒和精确色彩校正。
-                        </p>
+        <!-- Page 1: Photos -->
+        <section id="page-1" class="page p-6 md:p-12">
+            <div class="max-w-5xl mx-auto pt-10">
+                <h2 class="text-4xl font-bold mb-8">FRAGMENTS.</h2>
+                <div class="columns-2 md:columns-3 gap-4 space-y-4">
+                    <div class="card-border p-2 break-inside-avoid"><img src="https://images.unsplash.com/photo-1519638399535-1b036603ac77?q=80&w=600" class="w-full grayscale hover:grayscale-0 transition duration-500"></div>
+                    <div class="card-border p-2 break-inside-avoid"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600" class="w-full grayscale hover:grayscale-0 transition duration-500"></div>
+                    <div class="card-border p-6 break-inside-avoid flex items-center justify-center min-h-[200px] text-center">
+                        <div>
+                            <div class="font-bold text-2xl">Capture</div>
+                            <div class="text-xs opacity-50 mt-2">1/125s f/1.8</div>
+                        </div>
                     </div>
-                    <span class="mt-6 inline-block bg-primary-600 text-white text-sm px-5 py-2 rounded-full hover:bg-primary-500 transition-colors font-medium self-start relative z-10">进入工具</span>
+                    <div class="card-border p-2 break-inside-avoid"><img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=600" class="w-full grayscale hover:grayscale-0 transition duration-500"></div>
                 </div>
-            </a>
-
-<a href="tools/mesh-gradient.html" class="block animate-fade-in-3">
-    <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl border border-purple-500/50 shadow-2xl hover:shadow-purple-500/30 transform hover:-translate-y-2 transition-all duration-300 p-8 flex flex-col justify-between h-full relative overflow-hidden">
-        <div class="absolute inset-0 bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div class="relative z-10">
-            <div class="text-6xl mb-4 text-purple-500"><i class="fas fa-palette"></i></div>
-            <h3 class="text-3xl font-semibold mb-3 text-white">Pro Mesh Gradient V3</h3>
-            <p class="text-gray-400 text-base">
-                高级网格渐变生成器，可创建流畅的色彩过渡和动态视觉效果。
-            </p>
-        </div>
-        <span class="mt-6 inline-block bg-purple-600 text-white text-sm px-5 py-2 rounded-full hover:bg-purple-500 transition-colors font-medium self-start relative z-10">进入工具</span>
-    </div>
-</a>
-
-            <div class="bg-gray-850/80 backdrop-blur-sm rounded-xl shadow-inner p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-700 text-gray-500 animate-fade-in-3">
-                <div class="text-6xl mb-4 text-gray-600">➕</div>
-                <h3 class="text-2xl font-semibold mb-2">Next Project</h3>
-                <p class="text-base">敬请期待更多 Web 实验和实用工具！</p>
             </div>
-        </div>
+        </section>
+
+        <!-- Page 2: Tools -->
+        <section id="page-2" class="page p-6 md:p-12">
+            <div class="max-w-5xl mx-auto pt-10">
+                <h2 class="text-4xl font-bold mb-8">TOOLBOX.</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card-border p-8 flex flex-col justify-between min-h-[200px] group cursor-pointer">
+                        <div class="flex justify-between">
+                            <i data-lucide="layers" class="w-8 h-8"></i>
+                            <span class="text-xs font-mono">v1.2</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mt-4">CSS Grid Gen</h3>
+                            <p class="opacity-60 text-sm mt-2">快速生成复杂的 CSS Grid 布局代码。</p>
+                        </div>
+                    </div>
+                    <div class="card-border p-8 flex flex-col justify-between min-h-[200px] group cursor-pointer">
+                        <div class="flex justify-between">
+                            <i data-lucide="droplet" class="w-8 h-8"></i>
+                            <span class="text-xs font-mono">v0.9</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mt-4">Liquid UI</h3>
+                            <p class="opacity-60 text-sm mt-2">Web 物理引擎交互组件库。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 3: Lab -->
+        <section id="page-3" class="page p-6 md:p-12">
+            <div class="max-w-5xl mx-auto pt-40 text-center">
+                <div class="inline-block p-12 border border-black rounded-full mb-8">
+                    <i data-lucide="flask-conical" class="w-12 h-12"></i>
+                </div>
+                <h2 class="text-6xl font-bold tracking-tighter">LAB</h2>
+                <p class="mt-4 opacity-50 uppercase tracking-[0.3em]">Building in public</p>
+            </div>
+        </section>
     </main>
 
-    
-    <footer class="bg-gray-950/80 backdrop-blur-sm text-gray-600 text-center p-6 border-t border-gray-800/50 shrink-0 relative z-10">
-        <p>&copy; 2025 Leo. All rights reserved. | <span class="font-mono text-xs">V 1.0</span></p>
-    </footer>
+    <!-- NAVIGATION BAR -->
+    <div class="prism-nav-wrapper">
+        <div class="prism-bar" id="bar">
+            <!-- 液态棱镜圆角矩形 -->
+            <div class="prism-sphere" id="sphere"></div>
+
+            <!-- 图标 (对应4个页面) -->
+            <div class="icon-box" data-index="0"><i class="fa-solid fa-house"></i></div>
+            <div class="icon-box" data-index="1"><i class="fa-solid fa-camera"></i></div>
+            <div class="icon-box" data-index="2"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            <div class="icon-box" data-index="3"><i class="fa-solid fa-flask"></i></div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化 Lucide 图标
+        lucide.createIcons();
+
+        // ------------------------------------------------
+        // CONFIGURATION AND STATE (完全复刻你的配置)
+        // ------------------------------------------------
+        const CONFIG = {
+            stiffness: 0.1,    // Spring strength
+            damping: 0.8,      // Damping (friction)
+            scaleRange: 100,   // Icon proximity detection range
+            dragSensitivity: 0.95, // How directly the sphere follows the finger
+            vibrateDuration: 50 // Haptic feedback duration
+        };
+
+        const state = {
+            isDragging: false,
+            startX: 0,
+            
+            x: 0,              // Current position of the sphere (left edge)
+            vx: 0,             // Velocity
+            targetX: 0,        // Target snap position
+            
+            lastFrameTime: performance.now(),
+            currentIndex: 0,
+            animationFrame: null
+        };
+
+        // DOM Elements
+        const bar = document.getElementById('bar');
+        const sphere = document.getElementById('sphere');
+        const icons = document.querySelectorAll('.icon-box');
+        const root = document.documentElement;
+        
+        // CSS Variables
+        const style = getComputedStyle(root);
+        const BAR_PADDING_PX = parseFloat(style.getPropertyValue('--bar-padding')); 
+        const SPHERE_SIZE_NORMAL = parseFloat(style.getPropertyValue('--ball-size'));
+        const NUM_ICONS = icons.length;
+
+        // ------------------------------------------------
+        // INITIALIZATION
+        // ------------------------------------------------
+        function init() {
+            // Set initial sphere size based on CSS variable
+            sphere.style.width = `${SPHERE_SIZE_NORMAL}px`;
+            sphere.style.height = `${SPHERE_SIZE_NORMAL}px`;
+            
+            // Start at the first icon
+            state.currentIndex = 0; 
+            snapToIcon(icons[state.currentIndex], false); // false = no animation on init
+            
+            // Initial positioning
+            state.x = state.targetX; 
+            
+            updateSphereVisual();
+            icons[state.currentIndex].classList.add('active'); 
+            
+            state.animationFrame = requestAnimationFrame(physicsLoop);
+            
+            // 入场动画
+            gsap.from(".prism-nav-wrapper", { y: 100, duration: 1, ease: "power4.out", delay: 0.5 });
+            gsap.from(".hero-text", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 });
+        }
+
+        // ------------------------------------------------
+        // PAGE SWITCHING LOGIC (GSAP Integration)
+        // ------------------------------------------------
+        function switchPageContent(index) {
+            const currentActive = document.querySelector('.page.active');
+            const nextActive = document.getElementById(`page-${index}`);
+            
+            if (currentActive === nextActive) return;
+
+            // Simple GSAP transition
+            if (currentActive) {
+                gsap.to(currentActive, { 
+                    opacity: 0, 
+                    duration: 0.2, 
+                    onComplete: () => {
+                        currentActive.classList.remove('active');
+                        nextActive.classList.add('active');
+                        gsap.fromTo(nextActive, 
+                            { opacity: 0, y: 10 },
+                            { opacity: 1, y: 0, duration: 0.4 }
+                        );
+                    }
+                });
+            } else {
+                nextActive.classList.add('active');
+                gsap.set(nextActive, { opacity: 1 });
+            }
+        }
+
+        // ------------------------------------------------
+        // GEOMETRY CALCULATION (Center Fix)
+        // ------------------------------------------------
+        function snapToIcon(iconElement, shouldAnimatePage = true) {
+            const iconIndex = parseInt(iconElement.getAttribute('data-index'));
+            const barInnerWidth = bar.offsetWidth - (BAR_PADDING_PX * 2);
+            
+            // Each icon-box takes an equal width
+            const iconBoxWidth = barInnerWidth / NUM_ICONS; 
+            
+            // 1. Calculate Icon Center point
+            const centerRelToInnerBar = (iconIndex * iconBoxWidth) + (iconBoxWidth / 2);
+            
+            // 2. Calculate Sphere Left Edge Target Position
+            state.targetX = BAR_PADDING_PX + centerRelToInnerBar - (SPHERE_SIZE_NORMAL / 2);
+
+            // Trigger Page Switch if changed
+            if (state.currentIndex !== iconIndex && shouldAnimatePage) {
+                switchPageContent(iconIndex);
+            }
+            state.currentIndex = iconIndex;
+        }
+
+        // ------------------------------------------------
+        // CORE PHYSICS AND ANIMATION LOOP (复刻)
+        // ------------------------------------------------
+        function physicsLoop(currentTime) {
+            const deltaTime = currentTime - state.lastFrameTime;
+            state.lastFrameTime = currentTime;
+            
+            let currentXBeforeUpdate = state.x;
+            const currentSphereWidth = sphere.offsetWidth; 
+
+            if (state.isDragging) {
+                // DRAGGING STATE
+                const barRect = bar.getBoundingClientRect();
+                const pointerXRel = state.startX - barRect.left; 
+                
+                // Calculate new position based on pointer
+                const maxRight = bar.offsetWidth - currentSphereWidth;
+                let newX = Math.min(Math.max(0, pointerXRel - (currentSphereWidth / 2)), maxRight);
+
+                // Smooth follow
+                state.x += (newX - state.x) * CONFIG.dragSensitivity; 
+                
+            } else {
+                // SNAPPING STATE
+                const dist = state.targetX - state.x;
+                const force = dist * CONFIG.stiffness;
+
+                state.vx = (state.vx + force) * CONFIG.damping;
+                state.x += state.vx;
+
+                // Stop condition
+                if (Math.abs(dist) < 0.1 && Math.abs(state.vx) < 0.1) {
+                    state.x = state.targetX;
+                    state.vx = 0;
+                }
+            }
+
+            // Calculate instantaneous velocity for chromatic aberration
+            const currentSpeed = (state.x - currentXBeforeUpdate) / deltaTime * 16; 
+            updateChromaticAberration(currentSpeed);
+            
+            // Apply visual updates and check proximity
+            updateSphereVisual();
+            detectActiveIcon();
+            
+            state.animationFrame = requestAnimationFrame(physicsLoop);
+        }
+
+        // ------------------------------------------------
+        // VISUAL AND STATE UPDATES
+        // ------------------------------------------------
+        function updateChromaticAberration(speed) {
+            const absSpeed = Math.abs(speed);
+            const aberrationOpacity = Math.min(absSpeed * 0.1, 1);
+            
+            root.style.setProperty('--aberration-x', `${-speed * 0.5}px`); 
+            root.style.setProperty('--aberration-opacity', aberrationOpacity);
+        }
+
+        function updateSphereVisual() {
+            // Update position
+            sphere.style.transform = `translate(${state.x}px, -50%)`;
+            
+            // Update size and cursor
+            if (state.isDragging) {
+                // Locked to large size/radius during drag
+                root.style.setProperty('--ball-size', 'var(--ball-active-size)');
+                root.style.setProperty('--ball-radius-small', 'var(--ball-radius-large)');
+                sphere.style.cursor = 'grabbing';
+            } else {
+                // Snap state: CSS transition handles recovery
+                root.style.setProperty('--ball-size', '58px'); // 适配 CSS 变量初始值
+                root.style.setProperty('--ball-radius-small', '16px'); 
+                sphere.style.cursor = 'grab';
+            }
+        }
+        
+        function detectActiveIcon() {
+            const sphereCenter = state.x + (sphere.offsetWidth / 2);
+            let nearestIndex = -1;
+            let minDist = Infinity;
+
+            const iconBoxWidth = (bar.offsetWidth - (BAR_PADDING_PX * 2)) / NUM_ICONS;
+            
+            icons.forEach((icon, index) => {
+                const iconCenter = BAR_PADDING_PX + (index * iconBoxWidth) + (iconBoxWidth / 2);
+                const dist = Math.abs(sphereCenter - iconCenter);
+                
+                // Icon Magnification
+                let scale = 1;
+                if (dist < CONFIG.scaleRange) {
+                    const ratio = 1 - (dist / CONFIG.scaleRange);
+                    scale = 1 + (ratio * 0.4); 
+                    
+                    if (ratio > 0.8) {
+                         if (dist < minDist) {
+                            minDist = dist;
+                            nearestIndex = index;
+                        }
+                    }
+                }
+                icon.querySelector('i').style.transform = `scale(${scale})`;
+                icon.classList.remove('active');
+            });
+
+            // Apply highlight
+            if (state.isDragging) {
+                 if (nearestIndex !== -1) {
+                    icons[nearestIndex].classList.add('active');
+                 }
+            } else {
+                icons[state.currentIndex].classList.add('active');
+            }
+        }
+        
+        // ------------------------------------------------
+        // INTERACTION HANDLERS (復刻)
+        // ------------------------------------------------
+
+        function handleStart(clientX, event) {
+            if (event.cancelable) event.preventDefault(); 
+            // 允许 sphere 或其子元素触发
+            if (event.target !== sphere && !sphere.contains(event.target)) return;
+            
+            state.vx = 0; 
+            state.isDragging = true;
+            sphere.classList.add('dragging');
+            
+            state.startX = clientX; 
+        }
+
+        function handleMove(clientX) {
+            if (!state.isDragging) return;
+            state.startX = clientX; 
+        }
+
+        function handleEnd() {
+            if (!state.isDragging) return;
+            
+            state.isDragging = false;
+            sphere.classList.remove('dragging');
+            
+            // 1. Find nearest snap target
+            const sphereCenter = state.x + (SPHERE_SIZE_NORMAL / 2); 
+            let minDist = Infinity;
+            let nearestIcon = icons[state.currentIndex];
+
+            const iconBoxWidth = (bar.offsetWidth - (BAR_PADDING_PX * 2)) / NUM_ICONS;
+            
+            icons.forEach((icon, index) => {
+                const iconCenter = BAR_PADDING_PX + (index * iconBoxWidth) + (iconBoxWidth / 2);
+                const dist = Math.abs(sphereCenter - iconCenter);
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestIcon = icon;
+                }
+            });
+
+            // 2. Trigger snap
+            snapToIcon(nearestIcon);
+            if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
+        }
+
+        // BIND EVENTS
+        sphere.addEventListener('mousedown', e => handleStart(e.clientX, e));
+        window.addEventListener('mousemove', e => handleMove(e.clientX));
+        window.addEventListener('mouseup', handleEnd);
+
+        sphere.addEventListener('touchstart', e => handleStart(e.touches[0].clientX, e), {passive: false});
+        window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX), {passive: false});
+        window.addEventListener('touchend', handleEnd);
+
+        // Click handler for icons
+        icons.forEach((icon, idx) => {
+            icon.addEventListener('click', (e) => {
+                if (state.isDragging || Math.abs(state.vx) > 1) return;
+                snapToIcon(icon);
+                if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
+            });
+        });
+
+        window.addEventListener('resize', () => {
+           snapToIcon(icons[state.currentIndex], false);
+           state.x = state.targetX; 
+        });
+
+        window.onload = init;
+
+    </script>
 </body>
 </html>
+
