@@ -148,6 +148,730 @@
             color: black;
             text-shadow: 0 0 20px rgba(0,0,0,0.2);
         }
+
+        /* --- 4. Lab / Photo editor --- */
+        .lab-page {
+            min-height: 100vh;
+        }
+
+        .lab-shell {
+            width: min(1420px, 100%);
+            margin: 0 auto;
+            padding-top: 18px;
+        }
+
+        .lab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 24px;
+            border-bottom: 1px solid rgba(0,0,0,0.18);
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+
+        .lab-kicker {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            opacity: 0.55;
+        }
+
+        .lab-title {
+            font-size: clamp(2.6rem, 6vw, 5.2rem);
+            line-height: 0.9;
+            font-weight: 800;
+            letter-spacing: 0;
+            margin-top: 8px;
+        }
+
+        .lab-header-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .lab-chip {
+            height: 34px;
+            border: 1px solid rgba(0,0,0,0.16);
+            background: rgba(255,255,255,0.64);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 999px;
+            padding: 0 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .lab-chip i,
+        .lab-chip svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 216px minmax(0, 1fr) 324px;
+            gap: 14px;
+            min-height: 360px;
+            height: clamp(360px, calc(100vh - 320px), 680px);
+        }
+
+        .lab-panel,
+        .lab-stage {
+            border: 1px solid rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.58);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.75);
+        }
+
+        .lab-panel {
+            border-radius: 8px;
+            min-width: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lab-panel-head {
+            min-height: 54px;
+            padding: 14px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .lab-panel-title {
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+        }
+
+        .lab-queue-tools {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 10px 12px;
+            display: grid;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .lab-queue-actions {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .lab-queue-meta {
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: rgba(0,0,0,0.52);
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .lab-icon-btn,
+        .lab-text-btn,
+        .lab-upload-button {
+            border: 1px solid rgba(0,0,0,0.16);
+            background: rgba(255,255,255,0.72);
+            color: #111;
+            min-height: 38px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .lab-icon-btn {
+            width: 38px;
+            padding: 0;
+        }
+
+        .lab-queue-actions .lab-icon-btn {
+            width: 100%;
+            min-height: 34px;
+        }
+
+        .lab-icon-btn.active {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+
+        .lab-text-btn,
+        .lab-upload-button {
+            padding: 0 13px;
+        }
+
+        .lab-icon-btn:hover,
+        .lab-text-btn:hover,
+        .lab-upload-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0,0,0,0.36);
+            background: #fff;
+        }
+
+        .lab-icon-btn:disabled,
+        .lab-text-btn:disabled {
+            opacity: 0.36;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .lab-icon-btn svg,
+        .lab-text-btn svg,
+        .lab-upload-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .lab-primary-btn {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        .lab-primary-btn:hover {
+            background: #222;
+            color: #fff;
+        }
+
+        .lab-queue-list {
+            display: grid;
+            gap: 10px;
+            padding: 12px;
+            overflow-y: auto;
+            align-content: start;
+        }
+
+        .lab-upload-card {
+            min-height: 112px;
+            border: 1px dashed rgba(0,0,0,0.25);
+            background:
+                linear-gradient(135deg, rgba(211,255,94,0.18), rgba(255,255,255,0.72) 42%, rgba(87,211,255,0.16));
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .lab-upload-card:hover {
+            border-color: rgba(0,0,0,0.55);
+            transform: translateY(-1px);
+        }
+
+        .lab-upload-card-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .lab-upload-card svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .lab-thumb {
+            width: 100%;
+            height: 116px;
+            border: 1px solid rgba(0,0,0,0.12);
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .lab-thumb:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0,0,0,0.35);
+        }
+
+        .lab-thumb.active {
+            border-color: #111;
+            box-shadow: 0 0 0 2px #111 inset;
+        }
+
+        .lab-thumb.selected {
+            border-color: #111;
+            box-shadow: 0 0 0 2px #111 inset, 0 14px 30px rgba(0,0,0,0.12);
+        }
+
+        .lab-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .lab-thumb-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.22);
+            background: rgba(255,255,255,0.76);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: transparent;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lab-thumb.selection-mode .lab-thumb-check,
+        .lab-thumb.selected .lab-thumb-check {
+            display: flex;
+        }
+
+        .lab-thumb.selected .lab-thumb-check {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        .lab-thumb-check svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .lab-thumb-name {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            background: rgba(255,255,255,0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 999px;
+            color: #111;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            padding: 4px 7px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lab-stage {
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e7e7e1;
+            background-image:
+                linear-gradient(45deg, rgba(0,0,0,0.045) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(0,0,0,0.045) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.045) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.045) 75%);
+            background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+            background-size: 24px 24px;
+        }
+
+        .lab-stage.drag-over {
+            outline: 2px solid #111;
+            outline-offset: -10px;
+        }
+
+        .lab-canvas {
+            max-width: calc(100% - 32px);
+            max-height: calc(100% - 32px);
+            display: none;
+            box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+            background: #fff;
+        }
+
+        .lab-stage.has-image .lab-canvas {
+            display: block;
+        }
+
+        .lab-empty {
+            position: absolute;
+            inset: 24px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .lab-stage.has-image .lab-empty {
+            display: none;
+        }
+
+        .lab-empty-mark {
+            width: min(260px, 70%);
+            aspect-ratio: 1;
+            border: 1px solid rgba(0,0,0,0.18);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 20px;
+            background: rgba(255,255,255,0.38);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .lab-empty-mark svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .lab-empty-title {
+            font-size: clamp(1.8rem, 5vw, 4rem);
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .lab-empty-sub {
+            margin-top: 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            opacity: 0.45;
+        }
+
+        .lab-stage-meta {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .lab-stage-pill {
+            min-width: 0;
+            max-width: 70%;
+            height: 32px;
+            border: 1px solid rgba(0,0,0,0.13);
+            background: rgba(255,255,255,0.68);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 999px;
+            padding: 0 11px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.68rem;
+            font-weight: 800;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lab-compare-flag {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .lab-compare-flag.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .lab-loader {
+            position: absolute;
+            inset: 0;
+            display: none;
+            place-items: center;
+            background: rgba(242,242,240,0.62);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10;
+        }
+
+        .lab-loader.visible {
+            display: grid;
+        }
+
+        .lab-loader-ring {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3px solid rgba(0,0,0,0.12);
+            border-top-color: #111;
+            animation: labSpin 0.7s linear infinite;
+        }
+
+        @keyframes labSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .lab-control-scroll {
+            overflow-y: auto;
+            padding: 14px;
+        }
+
+        .lab-control-group {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+        }
+
+        .lab-control-group:last-child {
+            border-bottom: 0;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .lab-control-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .lab-control-group-title svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .lab-control-row {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .lab-control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .lab-control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.74rem;
+            font-weight: 800;
+        }
+
+        .lab-value {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.68rem;
+            border: 1px solid rgba(0,0,0,0.12);
+            background: rgba(255,255,255,0.58);
+            border-radius: 999px;
+            min-width: 48px;
+            padding: 3px 8px;
+            text-align: right;
+        }
+
+        .lab-controls input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 22px;
+            background: transparent;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .lab-controls input[type=range]::-webkit-slider-runnable-track {
+            height: 5px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #111, #57d3ff 54%, #d3ff5e);
+        }
+
+        .lab-controls input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #111;
+            margin-top: -6.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        }
+
+        .lab-controls input[type=range]:focus-visible::-webkit-slider-thumb {
+            outline: 2px solid #57d3ff;
+            outline-offset: 3px;
+        }
+
+        .lab-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .lab-action-grid .lab-text-btn {
+            width: 100%;
+        }
+
+        .lab-status {
+            margin-top: 12px;
+            font-size: 0.68rem;
+            line-height: 1.5;
+            opacity: 0.55;
+        }
+
+        .lab-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 116px;
+            z-index: 1200;
+            transform: translate(-50%, 14px) scale(0.98);
+            opacity: 0;
+            pointer-events: none;
+            border: 1px solid rgba(0,0,0,0.16);
+            background: rgba(17,17,17,0.9);
+            color: #fff;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.2);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .lab-toast.visible {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        @media (max-width: 1100px) {
+            .lab-grid {
+                grid-template-columns: 176px minmax(0, 1fr) 300px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            main {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .lab-header {
+                align-items: start;
+                flex-direction: column;
+            }
+
+            .lab-header-meta {
+                justify-content: flex-start;
+            }
+
+            .lab-grid {
+                height: auto;
+                min-height: 0;
+                grid-template-columns: 1fr;
+            }
+
+            .lab-queue-list {
+                grid-auto-flow: column;
+                grid-auto-columns: 132px;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .lab-queue-actions {
+                grid-template-columns: repeat(5, minmax(42px, 1fr));
+            }
+
+            .lab-upload-card,
+            .lab-thumb {
+                height: 108px;
+            }
+
+            .lab-stage {
+                min-height: 440px;
+            }
+
+            .lab-control-scroll {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .lab-page {
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+            }
+
+            .lab-stage {
+                min-height: 300px;
+            }
+
+            .lab-empty-mark {
+                width: min(180px, 56%);
+                margin-bottom: 14px;
+            }
+
+            .lab-empty-title {
+                font-size: 2rem;
+            }
+
+            .lab-stage-meta {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .lab-stage-pill {
+                max-width: 100%;
+            }
+
+            .lab-action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -220,13 +944,149 @@
         </section>
 
         <!-- Page 3: Lab -->
-        <section id="page-3" class="page p-6 md:p-12">
-            <div class="max-w-5xl mx-auto pt-40 text-center">
-                <div class="inline-block p-12 border border-black rounded-full mb-8">
-                    <i data-lucide="flask-conical" class="w-12 h-12"></i>
+        <section id="page-3" class="page lab-page p-4 md:p-8">
+            <div class="lab-shell">
+                <header class="lab-header lab-animate">
+                    <div>
+                        <div class="lab-kicker">Leo Lab / Photo Engine</div>
+                        <h2 class="lab-title">PHOTO<br>LAB.</h2>
+                    </div>
+                    <div class="lab-header-meta">
+                        <span class="lab-chip"><i data-lucide="cpu"></i>WebGL</span>
+                        <span class="lab-chip"><i data-lucide="sparkles"></i>Diffusion</span>
+                        <span class="lab-chip"><i data-lucide="images"></i><span id="labQueueCount">0 Photos</span></span>
+                    </div>
+                </header>
+
+                <div class="lab-grid">
+                    <aside class="lab-panel lab-animate">
+                        <div class="lab-panel-head">
+                            <div class="lab-panel-title">Queue</div>
+                        </div>
+                        <div class="lab-queue-tools">
+                            <div class="lab-queue-meta">
+                                <span id="labSelectionCount">0 selected</span>
+                                <span id="labClipboardState">No copied params</span>
+                            </div>
+                            <div class="lab-queue-actions">
+                                <button class="lab-icon-btn" type="button" id="labSelectModeBtn" title="Select photos" disabled>
+                                    <i data-lucide="check-square"></i>
+                                </button>
+                                <button class="lab-icon-btn" type="button" id="labSelectAllBtn" title="Select all photos" disabled>
+                                    <i data-lucide="list-checks"></i>
+                                </button>
+                                <button class="lab-icon-btn" type="button" id="labDeleteSelectedBtn" title="Delete selected photos" disabled>
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                                <button class="lab-icon-btn" type="button" id="labCopySettingsBtn" title="Copy parameters" disabled>
+                                    <i data-lucide="copy"></i>
+                                </button>
+                                <button class="lab-icon-btn" type="button" id="labPasteSettingsBtn" title="Paste parameters" disabled>
+                                    <i data-lucide="clipboard-paste"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lab-queue-list" id="labQueueList">
+                            <label class="lab-upload-card" for="labUploadInput">
+                                <span class="lab-upload-card-inner">
+                                    <i data-lucide="image-plus"></i>
+                                    Add Photos
+                                </span>
+                            </label>
+                        </div>
+                    </aside>
+
+                    <section class="lab-stage lab-animate" id="labDropZone">
+                        <input id="labUploadInput" type="file" accept="image/*" multiple class="hidden">
+                        <canvas id="labCanvas" class="lab-canvas"></canvas>
+
+                        <div class="lab-empty" id="labEmptyState">
+                            <div>
+                                <div class="lab-empty-mark">
+                                    <i data-lucide="aperture"></i>
+                                </div>
+                                <div class="lab-empty-title">DROP<br>LIGHT.</div>
+                                <div class="lab-empty-sub">Batch photos / GPU softness</div>
+                            </div>
+                        </div>
+
+                        <div class="lab-loader" id="labLoader">
+                            <div class="lab-loader-ring"></div>
+                        </div>
+
+                        <div class="lab-stage-meta">
+                            <div class="lab-stage-pill" id="labImageMeta">No image loaded</div>
+                            <div class="lab-stage-pill lab-compare-flag" id="labCompareFlag">ORIGINAL</div>
+                        </div>
+                    </section>
+
+                    <aside class="lab-panel lab-controls lab-animate">
+                        <div class="lab-panel-head">
+                            <div class="lab-panel-title">Controls</div>
+                            <button class="lab-icon-btn" type="button" id="labResetBtn" title="Reset controls">
+                                <i data-lucide="rotate-ccw"></i>
+                            </button>
+                        </div>
+
+                        <div class="lab-control-scroll">
+                            <section class="lab-control-group">
+                                <div class="lab-control-group-title"><i data-lucide="sparkles"></i>Soft Filter</div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labSoftness">Softness</label><span class="lab-value" id="labSoftnessVal">42%</span></div>
+                                    <input id="labSoftness" type="range" min="0" max="100" value="42" step="1">
+                                </div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labRadius">Diffusion</label><span class="lab-value" id="labRadiusVal">34%</span></div>
+                                    <input id="labRadius" type="range" min="0" max="100" value="34" step="1">
+                                </div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labHalation">Halation</label><span class="lab-value" id="labHalationVal">26%</span></div>
+                                    <input id="labHalation" type="range" min="0" max="100" value="26" step="1">
+                                </div>
+                            </section>
+
+                            <section class="lab-control-group">
+                                <div class="lab-control-group-title"><i data-lucide="sliders-horizontal"></i>Tone</div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labExposure">Exposure</label><span class="lab-value" id="labExposureVal">0</span></div>
+                                    <input id="labExposure" type="range" min="-100" max="100" value="0" step="1">
+                                </div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labContrast">Contrast</label><span class="lab-value" id="labContrastVal">4</span></div>
+                                    <input id="labContrast" type="range" min="-100" max="100" value="4" step="1">
+                                </div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labSaturation">Saturation</label><span class="lab-value" id="labSaturationVal">0</span></div>
+                                    <input id="labSaturation" type="range" min="-100" max="100" value="0" step="1">
+                                </div>
+                                <div class="lab-control-row">
+                                    <div class="lab-control-label"><label for="labWarmth">Warmth</label><span class="lab-value" id="labWarmthVal">0</span></div>
+                                    <input id="labWarmth" type="range" min="-100" max="100" value="0" step="1">
+                                </div>
+                            </section>
+
+                            <section class="lab-control-group">
+                                <div class="lab-control-group-title"><i data-lucide="wand-sparkles"></i>Output</div>
+                                <div class="lab-action-grid">
+                                    <button class="lab-text-btn" type="button" id="labCompareBtn" disabled title="Hold to compare">
+                                        <i data-lucide="eye"></i>Compare
+                                    </button>
+                                    <button class="lab-text-btn lab-primary-btn" type="button" id="labExportBtn" disabled>
+                                        <i data-lucide="download"></i>Current
+                                    </button>
+                                    <button class="lab-text-btn" type="button" id="labBatchExportBtn" disabled>
+                                        <i data-lucide="archive"></i>Batch
+                                    </button>
+                                    <button class="lab-text-btn" type="button" id="labApplyAllBtn" disabled>
+                                        <i data-lucide="copy-check"></i>Apply All
+                                    </button>
+                                </div>
+                                <p class="lab-status" id="labStatus">Ready for a stack of photos.</p>
+                            </section>
+                        </div>
+                    </aside>
                 </div>
-                <h2 class="text-6xl font-bold tracking-tighter">LAB</h2>
-                <p class="mt-4 opacity-50 uppercase tracking-[0.3em]">Building in public</p>
+                <div class="lab-toast" id="labToast">Copy parameters only supports one photo</div>
             </div>
         </section>
     </main>
@@ -308,6 +1168,8 @@
             // 入场动画
             gsap.from(".prism-nav-wrapper", { y: 100, duration: 1, ease: "power4.out", delay: 0.5 });
             gsap.from(".hero-text", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 });
+
+            initLabEditor();
         }
 
         // ------------------------------------------------
@@ -329,14 +1191,31 @@
                         nextActive.classList.add('active');
                         gsap.fromTo(nextActive, 
                             { opacity: 0, y: 10 },
-                            { opacity: 1, y: 0, duration: 0.4 }
+                            {
+                                opacity: 1,
+                                y: 0,
+                                duration: 0.4,
+                                onStart: () => {
+                                    if (index === 3) animateLabIn();
+                                }
+                            }
                         );
                     }
                 });
             } else {
                 nextActive.classList.add('active');
                 gsap.set(nextActive, { opacity: 1 });
+                if (index === 3) animateLabIn();
             }
+        }
+
+        function animateLabIn() {
+            if (!window.gsap) return;
+            gsap.fromTo(
+                ".lab-animate",
+                { opacity: 0, y: 16 },
+                { opacity: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.06, overwrite: true }
+            );
         }
 
         // ------------------------------------------------
@@ -476,6 +1355,1024 @@
                 icons[state.currentIndex].classList.add('active');
             }
         }
+
+        // ------------------------------------------------
+        // LAB PHOTO EDITOR (WebGL soft-focus pipeline)
+        // ------------------------------------------------
+        const LAB_DEFAULTS = {
+            labSoftness: 42,
+            labRadius: 34,
+            labHalation: 26,
+            labExposure: 0,
+            labContrast: 4,
+            labSaturation: 0,
+            labWarmth: 0
+        };
+
+        const LAB_CONTROL_IDS = Object.keys(LAB_DEFAULTS);
+
+        const LAB_VS_SOURCE = `
+            attribute vec2 a_position;
+            attribute vec2 a_texCoord;
+            varying vec2 v_texCoord;
+
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+                v_texCoord = a_texCoord;
+            }
+        `;
+
+        const LAB_FS_COPY = `
+            precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D u_image;
+
+            void main() {
+                gl_FragColor = texture2D(u_image, v_texCoord);
+            }
+        `;
+
+        const LAB_FS_TONE = `
+            precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D u_image;
+            uniform float u_exposure;
+            uniform float u_contrast;
+            uniform float u_saturation;
+            uniform float u_warmth;
+
+            float luma(vec3 color) {
+                return dot(color, vec3(0.2126, 0.7152, 0.0722));
+            }
+
+            void main() {
+                vec3 color = texture2D(u_image, v_texCoord).rgb;
+                color *= pow(2.0, u_exposure * 1.35);
+                color = (color - 0.5) * (1.0 + u_contrast * 0.85) + 0.5;
+
+                float gray = luma(color);
+                color = mix(vec3(gray), color, 1.0 + u_saturation);
+
+                color.r += u_warmth * 0.08;
+                color.g += u_warmth * 0.018;
+                color.b -= u_warmth * 0.08;
+
+                gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
+            }
+        `;
+
+        const LAB_FS_BLUR = `
+            precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D u_image;
+            uniform vec2 u_texel;
+            uniform vec2 u_direction;
+            uniform float u_radius;
+
+            void main() {
+                vec2 axis = u_texel * u_direction * max(u_radius, 0.35);
+                vec3 color = texture2D(u_image, v_texCoord).rgb * 0.2270270270;
+
+                color += texture2D(u_image, v_texCoord + axis * 1.3846153846).rgb * 0.3162162162;
+                color += texture2D(u_image, v_texCoord - axis * 1.3846153846).rgb * 0.3162162162;
+                color += texture2D(u_image, v_texCoord + axis * 3.2307692308).rgb * 0.0702702703;
+                color += texture2D(u_image, v_texCoord - axis * 3.2307692308).rgb * 0.0702702703;
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        const LAB_FS_COMPOSITE = `
+            precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D u_base;
+            uniform sampler2D u_blur;
+            uniform float u_softness;
+            uniform float u_halation;
+
+            float luma(vec3 color) {
+                return dot(color, vec3(0.2126, 0.7152, 0.0722));
+            }
+
+            vec3 screenBlend(vec3 base, vec3 blend) {
+                return 1.0 - (1.0 - base) * (1.0 - blend);
+            }
+
+            vec3 softLight(vec3 base, vec3 blend) {
+                vec3 low = 2.0 * base * blend + base * base * (1.0 - 2.0 * blend);
+                vec3 high = sqrt(max(base, 0.0)) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend);
+                return mix(low, high, step(vec3(0.5), blend));
+            }
+
+            void main() {
+                vec3 base = texture2D(u_base, v_texCoord).rgb;
+                vec3 blur = texture2D(u_blur, v_texCoord).rgb;
+
+                vec3 warmBlur = blur * vec3(1.0 + u_halation * 0.12, 1.0 + u_halation * 0.04, 1.0 - u_halation * 0.08);
+                vec3 pearled = softLight(base, mix(base, warmBlur, 0.82));
+                vec3 glow = screenBlend(base, warmBlur);
+
+                float highlightMask = smoothstep(0.48 - u_halation * 0.18, 1.0, luma(warmBlur));
+                vec3 diffusion = mix(pearled, glow, highlightMask * (0.35 + u_halation * 0.65));
+                vec3 result = mix(base, diffusion, u_softness);
+
+                result = mix(result, screenBlend(result, warmBlur), u_softness * u_halation * 0.22);
+                gl_FragColor = vec4(clamp(result, 0.0, 1.0), 1.0);
+            }
+        `;
+
+        const labState = {
+            booted: false,
+            gl: null,
+            canvas: null,
+            buffer: null,
+            programs: {},
+            locations: {},
+            items: [],
+            activeIndex: -1,
+            selectedIds: new Set(),
+            selectionMode: false,
+            clipboardSettings: null,
+            toastTimer: null,
+            textureOriginal: null,
+            fboBase: null,
+            fboPing: null,
+            fboPong: null,
+            width: 0,
+            height: 0,
+            maxTextureSize: 4096,
+            isComparing: false,
+            renderQueued: false,
+            exportBusy: false,
+            els: {}
+        };
+
+        function initLabEditor() {
+            if (labState.booted) return;
+            labState.booted = true;
+
+            labState.els = {
+                uploadInput: document.getElementById('labUploadInput'),
+                queueList: document.getElementById('labQueueList'),
+                queueCount: document.getElementById('labQueueCount'),
+                selectionCount: document.getElementById('labSelectionCount'),
+                clipboardState: document.getElementById('labClipboardState'),
+                selectModeBtn: document.getElementById('labSelectModeBtn'),
+                selectAllBtn: document.getElementById('labSelectAllBtn'),
+                deleteSelectedBtn: document.getElementById('labDeleteSelectedBtn'),
+                copySettingsBtn: document.getElementById('labCopySettingsBtn'),
+                pasteSettingsBtn: document.getElementById('labPasteSettingsBtn'),
+                dropZone: document.getElementById('labDropZone'),
+                emptyState: document.getElementById('labEmptyState'),
+                loader: document.getElementById('labLoader'),
+                toast: document.getElementById('labToast'),
+                imageMeta: document.getElementById('labImageMeta'),
+                compareFlag: document.getElementById('labCompareFlag'),
+                compareBtn: document.getElementById('labCompareBtn'),
+                exportBtn: document.getElementById('labExportBtn'),
+                batchExportBtn: document.getElementById('labBatchExportBtn'),
+                applyAllBtn: document.getElementById('labApplyAllBtn'),
+                resetBtn: document.getElementById('labResetBtn'),
+                status: document.getElementById('labStatus')
+            };
+
+            labState.canvas = document.getElementById('labCanvas');
+            labState.gl = labState.canvas.getContext('webgl', {
+                preserveDrawingBuffer: true,
+                alpha: false,
+                antialias: false
+            });
+
+            if (!labState.gl) {
+                setLabStatus('WebGL is not available in this browser.');
+                setLabButtonsEnabled(false);
+                return;
+            }
+
+            const gl = labState.gl;
+            labState.maxTextureSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), 4096);
+            gl.disable(gl.DEPTH_TEST);
+            gl.disable(gl.CULL_FACE);
+
+            try {
+                initLabGL();
+            } catch (error) {
+                console.error(error);
+                setLabStatus('Shader initialization failed.');
+                setLabButtonsEnabled(false);
+                return;
+            }
+
+            LAB_CONTROL_IDS.forEach(id => {
+                const input = document.getElementById(id);
+                const output = document.getElementById(`${id}Val`);
+                labState.els[id] = input;
+                labState.els[`${id}Val`] = output;
+                input.addEventListener('input', () => {
+                    updateLabControlLabel(id);
+                    saveActiveLabSettings();
+                    queueLabRender();
+                });
+                updateLabControlLabel(id);
+            });
+
+            labState.els.uploadInput.addEventListener('change', (event) => {
+                addLabFiles(event.target.files);
+                event.target.value = '';
+            });
+
+            labState.els.dropZone.addEventListener('click', (event) => {
+                if (!labState.items.length && event.target.closest('#labDropZone')) {
+                    labState.els.uploadInput.click();
+                }
+            });
+
+            labState.els.dropZone.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                labState.els.dropZone.classList.add('drag-over');
+            });
+
+            labState.els.dropZone.addEventListener('dragleave', (event) => {
+                event.preventDefault();
+                labState.els.dropZone.classList.remove('drag-over');
+            });
+
+            labState.els.dropZone.addEventListener('drop', (event) => {
+                event.preventDefault();
+                labState.els.dropZone.classList.remove('drag-over');
+                addLabFiles(event.dataTransfer.files);
+            });
+
+            const startCompare = (event) => {
+                if (!labState.textureOriginal) return;
+                event.preventDefault();
+                labState.isComparing = true;
+                labState.els.compareFlag.classList.add('visible');
+                queueLabRender();
+            };
+
+            const endCompare = (event) => {
+                if (!labState.textureOriginal) return;
+                if (event) event.preventDefault();
+                labState.isComparing = false;
+                labState.els.compareFlag.classList.remove('visible');
+                queueLabRender();
+            };
+
+            labState.els.compareBtn.addEventListener('mousedown', startCompare);
+            labState.els.compareBtn.addEventListener('mouseup', endCompare);
+            labState.els.compareBtn.addEventListener('mouseleave', endCompare);
+            labState.els.compareBtn.addEventListener('touchstart', startCompare, { passive: false });
+            labState.els.compareBtn.addEventListener('touchend', endCompare, { passive: false });
+            labState.els.compareBtn.addEventListener('touchcancel', endCompare, { passive: false });
+
+            labState.els.resetBtn.addEventListener('click', resetLabControls);
+            labState.els.exportBtn.addEventListener('click', downloadLabCurrent);
+            labState.els.batchExportBtn.addEventListener('click', downloadLabBatch);
+            labState.els.applyAllBtn.addEventListener('click', applyLabSettingsToAll);
+            labState.els.selectModeBtn.addEventListener('click', toggleLabSelectionMode);
+            labState.els.selectAllBtn.addEventListener('click', toggleLabSelectAll);
+            labState.els.deleteSelectedBtn.addEventListener('click', deleteSelectedLabItems);
+            labState.els.copySettingsBtn.addEventListener('click', copyLabSettings);
+            labState.els.pasteSettingsBtn.addEventListener('click', pasteLabSettings);
+
+            renderLabQueue();
+            setLabButtonsEnabled(false);
+        }
+
+        function initLabGL() {
+            const gl = labState.gl;
+            labState.programs.copy = createLabProgram(LAB_VS_SOURCE, LAB_FS_COPY);
+            labState.programs.tone = createLabProgram(LAB_VS_SOURCE, LAB_FS_TONE);
+            labState.programs.blur = createLabProgram(LAB_VS_SOURCE, LAB_FS_BLUR);
+            labState.programs.composite = createLabProgram(LAB_VS_SOURCE, LAB_FS_COMPOSITE);
+
+            labState.buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, labState.buffer);
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array([
+                    -1, -1, 0, 0,
+                     1, -1, 1, 0,
+                    -1,  1, 0, 1,
+                    -1,  1, 0, 1,
+                     1, -1, 1, 0,
+                     1,  1, 1, 1
+                ]),
+                gl.STATIC_DRAW
+            );
+        }
+
+        function createLabShader(type, source) {
+            const gl = labState.gl;
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                const info = gl.getShaderInfoLog(shader);
+                gl.deleteShader(shader);
+                throw new Error(info || 'Shader compile failed.');
+            }
+
+            return shader;
+        }
+
+        function createLabProgram(vertexSource, fragmentSource) {
+            const gl = labState.gl;
+            const vertex = createLabShader(gl.VERTEX_SHADER, vertexSource);
+            const fragment = createLabShader(gl.FRAGMENT_SHADER, fragmentSource);
+            const program = gl.createProgram();
+            gl.attachShader(program, vertex);
+            gl.attachShader(program, fragment);
+            gl.linkProgram(program);
+            gl.deleteShader(vertex);
+            gl.deleteShader(fragment);
+
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                const info = gl.getProgramInfoLog(program);
+                gl.deleteProgram(program);
+                throw new Error(info || 'Program link failed.');
+            }
+
+            return program;
+        }
+
+        function bindLabQuad(program) {
+            const gl = labState.gl;
+            gl.bindBuffer(gl.ARRAY_BUFFER, labState.buffer);
+
+            const positionLocation = gl.getAttribLocation(program, 'a_position');
+            const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+
+            if (positionLocation >= 0) {
+                gl.enableVertexAttribArray(positionLocation);
+                gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 16, 0);
+            }
+
+            if (texCoordLocation >= 0) {
+                gl.enableVertexAttribArray(texCoordLocation);
+                gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 16, 8);
+            }
+        }
+
+        function createLabTexture(source) {
+            const gl = labState.gl;
+            const texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+            return texture;
+        }
+
+        function createLabFramebuffer(width, height) {
+            const gl = labState.gl;
+            const texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+            const framebuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+            return { framebuffer, texture, width, height };
+        }
+
+        function deleteLabFramebuffer(target) {
+            if (!target) return;
+            const gl = labState.gl;
+            gl.deleteFramebuffer(target.framebuffer);
+            gl.deleteTexture(target.texture);
+        }
+
+        function resizeLabFramebuffers(width, height) {
+            deleteLabFramebuffer(labState.fboBase);
+            deleteLabFramebuffer(labState.fboPing);
+            deleteLabFramebuffer(labState.fboPong);
+
+            const blurScale = 0.45;
+            const blurWidth = Math.max(1, Math.round(width * blurScale));
+            const blurHeight = Math.max(1, Math.round(height * blurScale));
+
+            labState.fboBase = createLabFramebuffer(width, height);
+            labState.fboPing = createLabFramebuffer(blurWidth, blurHeight);
+            labState.fboPong = createLabFramebuffer(blurWidth, blurHeight);
+        }
+
+        function setLabTarget(target, width, height) {
+            const gl = labState.gl;
+            gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.framebuffer : null);
+            gl.viewport(0, 0, width, height);
+        }
+
+        function drawLabCopy(texture, target, width, height) {
+            const gl = labState.gl;
+            const program = labState.programs.copy;
+            setLabTarget(target, width, height);
+            gl.useProgram(program);
+            bindLabQuad(program);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+        function drawLabBlur(sourceTexture, target, directionX, directionY, radius, sourceWidth, sourceHeight) {
+            const gl = labState.gl;
+            const program = labState.programs.blur;
+            setLabTarget(target, target.width, target.height);
+            gl.useProgram(program);
+            bindLabQuad(program);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+            gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
+            gl.uniform2f(gl.getUniformLocation(program, 'u_texel'), 1 / sourceWidth, 1 / sourceHeight);
+            gl.uniform2f(gl.getUniformLocation(program, 'u_direction'), directionX, directionY);
+            gl.uniform1f(gl.getUniformLocation(program, 'u_radius'), radius);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+        function readLabControls() {
+            const value = (id) => Number(labState.els[id].value || 0);
+            return {
+                softness: value('labSoftness') / 100,
+                radius: value('labRadius') / 100,
+                halation: value('labHalation') / 100,
+                exposure: value('labExposure') / 100,
+                contrast: value('labContrast') / 100,
+                saturation: value('labSaturation') / 100,
+                warmth: value('labWarmth') / 100
+            };
+        }
+
+        function readLabControlValues() {
+            return LAB_CONTROL_IDS.reduce((values, id) => {
+                values[id] = Number(labState.els[id]?.value ?? LAB_DEFAULTS[id]);
+                return values;
+            }, {});
+        }
+
+        function cloneLabSettings(settings = LAB_DEFAULTS) {
+            return LAB_CONTROL_IDS.reduce((values, id) => {
+                values[id] = Number(settings[id] ?? LAB_DEFAULTS[id]);
+                return values;
+            }, {});
+        }
+
+        function writeLabControlValues(values, shouldRender = true) {
+            LAB_CONTROL_IDS.forEach(id => {
+                labState.els[id].value = values?.[id] ?? LAB_DEFAULTS[id];
+                updateLabControlLabel(id);
+            });
+
+            if (shouldRender) {
+                queueLabRender();
+            }
+        }
+
+        function saveActiveLabSettings() {
+            const item = labState.items[labState.activeIndex];
+            if (!item) return;
+            item.settings = readLabControlValues();
+        }
+
+        function getSelectedLabItems() {
+            return labState.items.filter(item => labState.selectedIds.has(item.id));
+        }
+
+        function getLabItemIndexById(id) {
+            return labState.items.findIndex(item => item.id === id);
+        }
+
+        function queueLabRender() {
+            if (!labState.textureOriginal || labState.renderQueued) return;
+            labState.renderQueued = true;
+            requestAnimationFrame(() => {
+                labState.renderQueued = false;
+                renderLab();
+            });
+        }
+
+        function renderLab() {
+            if (!labState.textureOriginal) return;
+
+            const gl = labState.gl;
+            const controls = readLabControls();
+
+            if (labState.isComparing) {
+                drawLabCopy(labState.textureOriginal, null, labState.width, labState.height);
+                return;
+            }
+
+            const toneProgram = labState.programs.tone;
+            setLabTarget(labState.fboBase, labState.width, labState.height);
+            gl.useProgram(toneProgram);
+            bindLabQuad(toneProgram);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, labState.textureOriginal);
+            gl.uniform1i(gl.getUniformLocation(toneProgram, 'u_image'), 0);
+            gl.uniform1f(gl.getUniformLocation(toneProgram, 'u_exposure'), controls.exposure);
+            gl.uniform1f(gl.getUniformLocation(toneProgram, 'u_contrast'), controls.contrast);
+            gl.uniform1f(gl.getUniformLocation(toneProgram, 'u_saturation'), controls.saturation);
+            gl.uniform1f(gl.getUniformLocation(toneProgram, 'u_warmth'), controls.warmth);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            if (controls.softness <= 0.001 && controls.halation <= 0.001) {
+                drawLabCopy(labState.fboBase.texture, null, labState.width, labState.height);
+                return;
+            }
+
+            const radius = 0.65 + controls.radius * 4.8;
+            const iterations = Math.max(1, Math.round(2 + controls.radius * 7));
+
+            drawLabBlur(labState.fboBase.texture, labState.fboPing, 1, 0, radius, labState.width, labState.height);
+            let current = labState.fboPing;
+            let next = labState.fboPong;
+
+            for (let i = 0; i < iterations; i++) {
+                drawLabBlur(current.texture, next, 0, 1, radius, current.width, current.height);
+                [current, next] = [next, current];
+                drawLabBlur(current.texture, next, 1, 0, radius, current.width, current.height);
+                [current, next] = [next, current];
+            }
+
+            const compositeProgram = labState.programs.composite;
+            setLabTarget(null, labState.width, labState.height);
+            gl.useProgram(compositeProgram);
+            bindLabQuad(compositeProgram);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, labState.fboBase.texture);
+            gl.uniform1i(gl.getUniformLocation(compositeProgram, 'u_base'), 0);
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, current.texture);
+            gl.uniform1i(gl.getUniformLocation(compositeProgram, 'u_blur'), 1);
+            gl.uniform1f(gl.getUniformLocation(compositeProgram, 'u_softness'), controls.softness);
+            gl.uniform1f(gl.getUniformLocation(compositeProgram, 'u_halation'), controls.halation);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+        function addLabFiles(fileList) {
+            const files = Array.from(fileList || []).filter(file => file.type.startsWith('image/'));
+            if (!files.length) return;
+
+            const firstNewIndex = labState.items.length;
+            const initialSettings = cloneLabSettings(LAB_DEFAULTS);
+            files.forEach(file => {
+                labState.items.push({
+                    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                    file,
+                    name: file.name || 'untitled-photo',
+                    url: URL.createObjectURL(file),
+                    source: null,
+                    width: 0,
+                    height: 0,
+                    settings: cloneLabSettings(initialSettings)
+                });
+            });
+
+            renderLabQueue();
+            activateLabItem(firstNewIndex);
+            setLabStatus(`${files.length} photo${files.length > 1 ? 's' : ''} added.`);
+
+            if (window.gsap) {
+                gsap.fromTo('.lab-thumb', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.28, stagger: 0.03, ease: 'power2.out' });
+            }
+        }
+
+        function renderLabQueue() {
+            const list = labState.els.queueList;
+            list.innerHTML = '';
+
+            const upload = document.createElement('label');
+            upload.className = 'lab-upload-card';
+            upload.setAttribute('for', 'labUploadInput');
+            upload.innerHTML = `
+                <span class="lab-upload-card-inner">
+                    <i data-lucide="image-plus"></i>
+                    Add Photos
+                </span>
+            `;
+            list.appendChild(upload);
+
+            labState.items.forEach((item, index) => {
+                const isSelected = labState.selectedIds.has(item.id);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = [
+                    'lab-thumb',
+                    index === labState.activeIndex ? 'active' : '',
+                    isSelected ? 'selected' : '',
+                    labState.selectionMode ? 'selection-mode' : ''
+                ].filter(Boolean).join(' ');
+                button.addEventListener('click', () => {
+                    if (labState.selectionMode) {
+                        toggleLabItemSelection(item.id);
+                    } else {
+                        activateLabItem(index);
+                    }
+                });
+
+                const image = document.createElement('img');
+                image.src = item.url;
+                image.alt = item.name;
+
+                const check = document.createElement('span');
+                check.className = 'lab-thumb-check';
+                check.innerHTML = '<i data-lucide="check"></i>';
+
+                const name = document.createElement('span');
+                name.className = 'lab-thumb-name';
+                name.textContent = item.name;
+
+                button.appendChild(image);
+                button.appendChild(check);
+                button.appendChild(name);
+                list.appendChild(button);
+            });
+
+            labState.els.queueCount.textContent = `${labState.items.length} Photo${labState.items.length === 1 ? '' : 's'}`;
+            updateLabQueueTools();
+            setLabButtonsEnabled(labState.items.length > 0 && labState.textureOriginal && !labState.exportBusy);
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function updateLabQueueTools() {
+            const selectedCount = labState.selectedIds.size;
+            const total = labState.items.length;
+            const allSelected = total > 0 && selectedCount === total;
+
+            labState.els.selectionCount.textContent = `${selectedCount} selected`;
+            labState.els.clipboardState.textContent = labState.clipboardSettings ? 'Params copied' : 'No copied params';
+            labState.els.selectModeBtn.classList.toggle('active', labState.selectionMode);
+            labState.els.selectAllBtn.classList.toggle('active', allSelected);
+            labState.els.selectAllBtn.title = allSelected ? 'Clear selection' : 'Select all photos';
+        }
+
+        function toggleLabSelectionMode() {
+            if (!labState.items.length || labState.exportBusy) return;
+            labState.selectionMode = !labState.selectionMode;
+            if (!labState.selectionMode) {
+                labState.selectedIds.clear();
+            }
+            renderLabQueue();
+        }
+
+        function toggleLabItemSelection(id) {
+            if (labState.selectedIds.has(id)) {
+                labState.selectedIds.delete(id);
+            } else {
+                labState.selectedIds.add(id);
+            }
+            renderLabQueue();
+        }
+
+        function toggleLabSelectAll() {
+            if (!labState.items.length || labState.exportBusy) return;
+
+            labState.selectionMode = true;
+            if (labState.selectedIds.size === labState.items.length) {
+                labState.selectedIds.clear();
+            } else {
+                labState.selectedIds = new Set(labState.items.map(item => item.id));
+            }
+            renderLabQueue();
+        }
+
+        function clearLabImageState() {
+            const gl = labState.gl;
+            if (labState.textureOriginal) {
+                gl.deleteTexture(labState.textureOriginal);
+            }
+
+            deleteLabFramebuffer(labState.fboBase);
+            deleteLabFramebuffer(labState.fboPing);
+            deleteLabFramebuffer(labState.fboPong);
+
+            labState.textureOriginal = null;
+            labState.fboBase = null;
+            labState.fboPing = null;
+            labState.fboPong = null;
+            labState.width = 0;
+            labState.height = 0;
+            labState.activeIndex = -1;
+            labState.canvas.width = 1;
+            labState.canvas.height = 1;
+            labState.els.dropZone.classList.remove('has-image');
+            labState.els.imageMeta.textContent = 'No image loaded';
+            setLabButtonsEnabled(false);
+        }
+
+        function deleteSelectedLabItems() {
+            if (!labState.selectedIds.size || labState.exportBusy) return;
+
+            const deletedIds = new Set(labState.selectedIds);
+            const activeItem = labState.items[labState.activeIndex];
+            labState.items.forEach(item => {
+                if (deletedIds.has(item.id)) {
+                    URL.revokeObjectURL(item.url);
+                }
+            });
+
+            labState.items = labState.items.filter(item => !deletedIds.has(item.id));
+            labState.selectedIds.clear();
+            labState.selectionMode = labState.items.length > 0 && labState.selectionMode;
+
+            if (!labState.items.length) {
+                clearLabImageState();
+                renderLabQueue();
+                setLabStatus('Selected photos deleted.');
+                return;
+            }
+
+            const activeStillExists = activeItem && !deletedIds.has(activeItem.id);
+            if (activeStillExists) {
+                labState.activeIndex = getLabItemIndexById(activeItem.id);
+                renderLabQueue();
+                setLabStatus('Selected photos deleted.');
+                return;
+            }
+
+            const nextIndex = Math.min(labState.activeIndex, labState.items.length - 1);
+            activateLabItem(Math.max(0, nextIndex));
+            setLabStatus('Selected photos deleted.');
+        }
+
+        function copyLabSettings() {
+            const selectedItems = getSelectedLabItems();
+
+            if (selectedItems.length > 1) {
+                showLabToast('Copy parameters only supports one photo');
+                return;
+            }
+
+            const sourceItem = selectedItems[0] || labState.items[labState.activeIndex];
+            if (!sourceItem) {
+                showLabToast('Select one photo first');
+                return;
+            }
+
+            saveActiveLabSettings();
+            labState.clipboardSettings = cloneLabSettings(sourceItem.settings);
+            updateLabQueueTools();
+            setLabButtonsEnabled(true);
+            setLabStatus(`Copied parameters from ${sourceItem.name}.`);
+            showLabToast('Parameters copied');
+        }
+
+        function pasteLabSettings() {
+            if (!labState.clipboardSettings) {
+                showLabToast('No copied parameters');
+                return;
+            }
+
+            const selectedItems = getSelectedLabItems();
+            const targetItems = selectedItems.length ? selectedItems : [labState.items[labState.activeIndex]].filter(Boolean);
+
+            if (!targetItems.length) {
+                showLabToast('Select photos to paste');
+                return;
+            }
+
+            const activeItem = labState.items[labState.activeIndex];
+            targetItems.forEach(item => {
+                item.settings = cloneLabSettings(labState.clipboardSettings);
+            });
+
+            if (activeItem && targetItems.some(item => item.id === activeItem.id)) {
+                writeLabControlValues(activeItem.settings, false);
+                queueLabRender();
+            }
+
+            renderLabQueue();
+            setLabStatus(`Pasted parameters to ${targetItems.length} photo${targetItems.length === 1 ? '' : 's'}.`);
+            showLabToast('Parameters pasted');
+        }
+
+        function showLabToast(message) {
+            labState.els.toast.textContent = message;
+            labState.els.toast.classList.add('visible');
+            clearTimeout(labState.toastTimer);
+
+            if (window.gsap) {
+                gsap.fromTo(
+                    labState.els.toast,
+                    { x: '-50%', y: 8, scale: 0.98 },
+                    { x: '-50%', y: 0, scale: 1, duration: 0.24, ease: 'back.out(2)' }
+                );
+                gsap.fromTo(
+                    labState.els.toast,
+                    { rotate: -1.4 },
+                    { rotate: 0, duration: 0.35, ease: 'elastic.out(1, 0.45)' }
+                );
+            }
+
+            labState.toastTimer = setTimeout(() => {
+                labState.els.toast.classList.remove('visible');
+            }, 1800);
+        }
+
+        async function activateLabItem(index) {
+            if (index < 0 || index >= labState.items.length || labState.exportBusy) return;
+
+            if (labState.activeIndex !== index) {
+                saveActiveLabSettings();
+            }
+            labState.activeIndex = index;
+            writeLabControlValues(labState.items[index].settings, false);
+            renderLabQueue();
+            setLabLoading(true);
+
+            try {
+                const item = labState.items[index];
+                const source = await getLabSource(item);
+                uploadLabSource(source);
+                labState.els.dropZone.classList.add('has-image');
+                labState.els.imageMeta.textContent = `${item.name} / ${labState.width} x ${labState.height}`;
+                setLabButtonsEnabled(true);
+                renderLab();
+                setLabStatus('Soft focus shader is live.');
+            } catch (error) {
+                console.error(error);
+                setLabStatus('Could not load that image.');
+            } finally {
+                setLabLoading(false);
+            }
+        }
+
+        function getLabSource(item) {
+            if (item.source) return Promise.resolve(item.source);
+
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = () => {
+                    const source = fitLabSourceToTexture(image);
+                    item.source = source;
+                    item.width = source.naturalWidth || source.width;
+                    item.height = source.naturalHeight || source.height;
+                    resolve(source);
+                };
+                image.onerror = reject;
+                image.src = item.url;
+            });
+        }
+
+        function fitLabSourceToTexture(image) {
+            const width = image.naturalWidth || image.width;
+            const height = image.naturalHeight || image.height;
+            const maxSide = Math.max(width, height);
+
+            if (maxSide <= labState.maxTextureSize) {
+                return image;
+            }
+
+            const scale = labState.maxTextureSize / maxSide;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(width * scale));
+            canvas.height = Math.max(1, Math.round(height * scale));
+            const context = canvas.getContext('2d', { alpha: false });
+            context.imageSmoothingQuality = 'high';
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            return canvas;
+        }
+
+        function uploadLabSource(source) {
+            const gl = labState.gl;
+            const width = source.naturalWidth || source.width;
+            const height = source.naturalHeight || source.height;
+
+            labState.width = width;
+            labState.height = height;
+            labState.canvas.width = width;
+            labState.canvas.height = height;
+
+            if (labState.textureOriginal) {
+                gl.deleteTexture(labState.textureOriginal);
+            }
+
+            labState.textureOriginal = createLabTexture(source);
+            resizeLabFramebuffers(width, height);
+        }
+
+        function resetLabControls() {
+            writeLabControlValues(LAB_DEFAULTS, false);
+            saveActiveLabSettings();
+            queueLabRender();
+            setLabStatus('Controls reset.');
+        }
+
+        function updateLabControlLabel(id) {
+            const output = labState.els[`${id}Val`];
+            if (!output) return;
+
+            const value = Number(labState.els[id].value || 0);
+            const isPercent = id === 'labSoftness' || id === 'labRadius' || id === 'labHalation';
+            const signed = !isPercent && value > 0 ? `+${value}` : `${value}`;
+            output.textContent = isPercent ? `${value}%` : signed;
+        }
+
+        function setLabButtonsEnabled(enabled) {
+            const hasItems = labState.items.length > 0;
+            const hasSelection = labState.selectedIds.size > 0;
+
+            labState.els.compareBtn.disabled = !enabled;
+            labState.els.exportBtn.disabled = !enabled;
+            labState.els.batchExportBtn.disabled = !enabled || !hasItems;
+            labState.els.applyAllBtn.disabled = !enabled || labState.items.length < 2;
+            labState.els.selectModeBtn.disabled = !hasItems || labState.exportBusy;
+            labState.els.selectAllBtn.disabled = !hasItems || labState.exportBusy;
+            labState.els.deleteSelectedBtn.disabled = !hasSelection || labState.exportBusy;
+            labState.els.copySettingsBtn.disabled = !hasItems || labState.exportBusy;
+            labState.els.pasteSettingsBtn.disabled = !hasItems || !labState.clipboardSettings || labState.exportBusy;
+            updateLabQueueTools();
+        }
+
+        function setLabLoading(isLoading) {
+            labState.els.loader.classList.toggle('visible', isLoading);
+        }
+
+        function setLabStatus(message) {
+            labState.els.status.textContent = message;
+        }
+
+        function downloadLabCurrent() {
+            if (!labState.textureOriginal) return;
+            saveActiveLabSettings();
+            renderLab();
+            const item = labState.items[labState.activeIndex];
+            triggerLabDownload(`${fileBaseName(item.name)}-soft-focus.png`);
+            setLabStatus('Current image exported.');
+        }
+
+        function applyLabSettingsToAll() {
+            if (!labState.items.length) return;
+
+            const settings = readLabControlValues();
+            labState.items.forEach(item => {
+                item.settings = { ...settings };
+            });
+
+            queueLabRender();
+            setLabStatus(`Applied current settings to ${labState.items.length} photos.`);
+        }
+
+        async function downloadLabBatch() {
+            if (!labState.items.length || labState.exportBusy) return;
+
+            saveActiveLabSettings();
+            const previousIndex = labState.activeIndex;
+            labState.exportBusy = true;
+            setLabButtonsEnabled(false);
+            setLabStatus(`Exporting ${labState.items.length} photos...`);
+
+            for (let index = 0; index < labState.items.length; index++) {
+                labState.activeIndex = index;
+                writeLabControlValues(labState.items[index].settings, false);
+                renderLabQueue();
+                setLabLoading(true);
+                const item = labState.items[index];
+                const source = await getLabSource(item);
+                uploadLabSource(source);
+                labState.els.dropZone.classList.add('has-image');
+                labState.els.imageMeta.textContent = `${item.name} / ${labState.width} x ${labState.height}`;
+                renderLab();
+                triggerLabDownload(`${fileBaseName(item.name)}-soft-focus.png`);
+                await waitLabFrame(140);
+            }
+
+            labState.exportBusy = false;
+            setLabLoading(false);
+            setLabButtonsEnabled(true);
+            setLabStatus('Batch export finished.');
+            if (previousIndex >= 0) activateLabItem(previousIndex);
+        }
+
+        function triggerLabDownload(filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = labState.canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function fileBaseName(name) {
+            return (name || 'photo').replace(/\.[^/.]+$/, '').replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'photo';
+        }
+
+        function waitLabFrame(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
         
         // ------------------------------------------------
         // INTERACTION HANDLERS (復刻)
@@ -549,9 +2446,12 @@
            state.x = state.targetX; 
         });
 
-        window.onload = init;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
 
     </script>
 </body>
 </html>
-
