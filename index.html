@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Personal Space | Liquid Interaction</title>
-    
+
     <!-- 引入资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -19,23 +19,41 @@
             /* 页面主题色 */
             --bg-color: #f2f2f0;
             --text-color: #1a1a1a;
-            
+
             /* --- Liquid Bar 变量 (适配亮色主题) --- */
             --bar-width: 320px; /* 稍微调窄适配4个图标 */
             --bar-height: 70px;
-            --bar-padding: 6px; 
-            --ball-size: 58px; 
-            --ball-active-size: 72px; /* 拖拽时变大 */
-            --ball-radius-small: 16px; 
-            --ball-radius-large: 24px; 
-            --aberration-x: 0px; 
+            --bar-padding: 6px;
+            --ball-size: 58px;
+            --ball-active-size: 78px;
+            --pill-width: 76px;
+            --pill-height: 56px; /* 拖拽时变大 */
+            --ball-radius-small: 16px;
+            --ball-radius-large: 24px;
+            --aberration-x: 0px;
             --aberration-opacity: 0;
+            --liquid-speed: 0;
+            --liquid-stretch: 1;
+            --liquid-squash: 1;
+            --liquid-tilt: 0deg;
+            --liquid-edge: 0.5;
+            --liquid-edge-blur: 17px;
+            --liquid-edge-ring: 1.5px;
+            --liquid-caustic-opacity: 0.28;
+            --liquid-shadow-x: 0px;
+            --liquid-caustic-x: 0px;
+            --liquid-blue-shift: 0px;
+            --liquid-drift: 0px;
+            --liquid-glare-x: 32%;
+            --liquid-rim-opacity: 0.62;
+            --liquid-refraction-opacity: 0.58;
+            --nav-active-center: 35px;
             --accent-color: 0, 0, 0; /* 选中颜色：纯黑 */
             --default-color: 100, 100, 100;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -57,7 +75,7 @@
             overflow-y: auto; /* 允许内容滚动 */
             padding-bottom: 120px; /* 为导航栏留空 */
         }
-        
+
         .page { display: none; opacity: 0; min-height: 80vh; }
         .page.active { display: block; opacity: 1; }
 
@@ -68,6 +86,7 @@
         /* --- 3. 导航栏样式 (复刻你的代码逻辑，调整颜色) --- */
         .prism-nav-wrapper {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            filter: drop-shadow(0 18px 26px rgba(34,86,146,0.16));
         }
 
         .prism-bar {
@@ -78,15 +97,48 @@
             border-radius: 40px;
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 var(--bar-padding);
-            
-            /* 玻璃质感 - 亮色版 */
-            background: rgba(255, 255, 255, 0.65); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.08),
-                inset 0 1px 0 rgba(255,255,255,1);
+            isolation: isolate;
+
+            /* 鐜荤拑璐ㄦ劅 - 浜壊鐗?*/
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.46), rgba(255,255,255,0.18) 42%, rgba(190,222,255,0.18)),
+                radial-gradient(125px 58px at var(--nav-active-center) 50%, rgba(255,255,255,0.9), rgba(255,255,255,0.2) 58%, transparent 72%);
+            backdrop-filter: blur(9px) saturate(160%) contrast(1.16);
+            -webkit-backdrop-filter: blur(9px) saturate(160%) contrast(1.16);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.9),
+                0 18px 38px rgba(37,93,155,0.12),
+                inset 0 1px 0 rgba(255,255,255,0.98),
+                inset 0 -18px 26px rgba(42,103,170,0.08);
+        }
+
+        .prism-bar::before,
+        .prism-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .prism-bar::before {
+            background:
+                radial-gradient(95px 46px at var(--nav-active-center) 18%, rgba(255,255,255,0.9), transparent 64%),
+                radial-gradient(116px 50px at calc(var(--nav-active-center) + var(--liquid-drift)) 92%, rgba(34,110,212,0.22), transparent 74%);
+            opacity: 0.86;
+            filter: blur(0.2px);
+        }
+
+        .prism-bar::after {
+            inset: 1px;
+            background:
+                linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent) 0 0 / 56% 1px no-repeat,
+                linear-gradient(180deg, rgba(255,255,255,0.58), transparent 38%, rgba(0,0,0,0.07));
+            box-shadow:
+                inset 1px 0 0 rgba(255,255,255,0.42),
+                inset -1px 0 0 rgba(0,0,0,0.055);
         }
 
         .prism-sphere {
@@ -94,49 +146,99 @@
             width: var(--ball-size); height: var(--ball-size);
             top: 50%; left: 0; transform: translate(0, -50%);
             cursor: grab; z-index: 100;
-            
-            /* 形状过渡：复刻你的逻辑 */
-            border-radius: var(--ball-radius-small); 
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                        width 0.2s, height 0.2s, border-radius 0.2s;
-            will-change: transform, width, height, left;
+            overflow: hidden;
+            isolation: isolate;
 
-            /* 球体材质 - 这里的颜色很重要，要像果冻 */
-            background: rgba(0, 0, 0, 0.04); /* 极淡的黑色半透明 */
-            backdrop-filter: blur(4px);
-            box-shadow: 
-                inset 0 0 15px rgba(255,255,255,0.8), 
-                0 4px 10px rgba(0,0,0,0.05),
-                0 0 0 1px rgba(0,0,0,0.03);
+            /* Shape interpolation */
+            border-radius: var(--ball-radius-small);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        width 0.22s, height 0.22s, border-radius 0.22s,
+                        filter 0.18s, background 0.18s;
+            will-change: transform, width, height, filter;
+
+            /* 鐞冧綋鏉愯川 - 杩欓噷鐨勯鑹插緢閲嶈锛岃鍍忔灉鍐?*/
+            background:
+                radial-gradient(circle at var(--liquid-glare-x) 18%, rgba(255,255,255,0.94), rgba(255,255,255,0.42) 16%, transparent 38%),
+                radial-gradient(140% 105% at 50% 115%, rgba(0,0,0,0.16), transparent 48%),
+                linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.22) 38%, rgba(0,0,0,0.07));
+            backdrop-filter: blur(4px) saturate(185%) contrast(1.28);
+            -webkit-backdrop-filter: blur(4px) saturate(185%) contrast(1.28);
+            border: 1.5px solid rgba(255,255,255,0.92);
+            filter:
+                drop-shadow(var(--liquid-shadow-x) 12px 18px rgba(38,105,190,0.18))
+                drop-shadow(0 0 8px rgba(255,255,255,0.55));
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,1),
+                inset 0 0 0 1px rgba(255,255,255,0.42),
+                inset 12px 0 18px rgba(255,255,255,0.28),
+                inset -18px 0 22px rgba(0,0,0,0.055),
+                inset 0 -18px 24px rgba(0,0,0,0.08),
+                0 7px 18px rgba(0,0,0,0.08);
         }
 
         .prism-sphere.dragging {
-            transition: width 0.2s, height 0.2s, border-radius 0.2s; /* 拖拽时只有大小变化是平滑的，位置跟随JS */
+            transition: width 0.2s, height 0.2s, border-radius 0.2s; /* Shape interpolation */
             border-radius: var(--ball-radius-large);
             cursor: grabbing;
-            background: rgba(0, 0, 0, 0.06);
+            background:
+                radial-gradient(circle at var(--liquid-glare-x) 17%, rgba(255,255,255,0.98), rgba(255,255,255,0.48) 17%, transparent 42%),
+                radial-gradient(135% 110% at 50% 112%, rgba(0,0,0,0.19), transparent 50%),
+                linear-gradient(135deg, rgba(255,255,255,0.76), rgba(255,255,255,0.22) 38%, rgba(0,0,0,0.09));
         }
 
-        /* 色散效果 */
+        /* Chromatic edge split */
         .prism-sphere::before, .prism-sphere::after {
             content: ''; position: absolute; inset: 0; border-radius: inherit;
-            pointer-events: none; mix-blend-mode: multiply; /* 亮色背景用 multiply */
+            pointer-events: none; mix-blend-mode: multiply; /* Light-theme blend */
             opacity: var(--aberration-opacity); transition: opacity 0.1s;
+            z-index: 3;
         }
         .prism-sphere::before {
-            box-shadow: inset 3px 0 10px rgba(255, 0, 0, 0.15); /* 红 */
+            box-shadow:
+                inset 5px 0 12px rgba(255, 45, 36, 0.23),
+                inset -1px 0 7px rgba(255, 208, 72, 0.12);
             transform: translateX(var(--aberration-x));
         }
         .prism-sphere::after {
-            box-shadow: inset -3px 0 10px rgba(0, 255, 255, 0.15); /* 青 */
-            transform: translateX(calc(var(--aberration-x) * -1));
+            box-shadow:
+                inset -5px 0 13px rgba(0, 205, 255, 0.24),
+                inset 1px 0 7px rgba(0, 94, 255, 0.11);
+            transform: translateX(var(--liquid-blue-shift, 0px));
         }
 
+        .prism-core,
+        .prism-caustic {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .prism-core {
+            z-index: 1;
+            background:
+                linear-gradient(90deg, rgba(255,255,255,0.7), transparent 22%, transparent 72%, rgba(255,255,255,0.22)),
+                radial-gradient(80% 58% at 50% 4%, rgba(255,255,255,0.78), transparent 58%);
+            box-shadow:
+                inset 0 0 var(--liquid-edge-blur) rgba(255,255,255,0.58),
+                inset 0 0 0 var(--liquid-edge-ring) rgba(255,255,255,0.22);
+            opacity: 0.9;
+        }
+
+        .prism-caustic {
+            z-index: 2;
+            background:
+                conic-gradient(from 215deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.45) 42deg, transparent 78deg, rgba(0,0,0,0.07) 152deg, transparent 230deg, rgba(255,255,255,0.28) 310deg, transparent 360deg),
+                linear-gradient(calc(98deg + var(--liquid-tilt)), transparent 12%, rgba(255,255,255,0.72) 49%, transparent 58%);
+            opacity: var(--liquid-caustic-opacity);
+            mix-blend-mode: screen;
+            transform: translateX(var(--liquid-caustic-x));
+        }
         .icon-box {
             position: relative; z-index: 10; flex: 1; height: 100%;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
         }
-        
+
         .icon-box i {
             font-size: 20px;
             color: rgba(0, 0, 0, 0.3); /* 默认灰色 */
@@ -147,6 +249,136 @@
         .icon-box.active i {
             color: black;
             text-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        /* WebGL port of AndroidLiquidGlass BottomTabs: backdrop texture + rounded-rect lens + 7-sample dispersion. */
+        .liquid-tabs-canvas {
+            position: absolute;
+            inset: -30px;
+            width: calc(100% + 60px);
+            height: calc(100% + 60px);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .prism-nav-wrapper {
+            filter: drop-shadow(0 18px 30px rgba(28, 87, 158, 0.18));
+        }
+
+        .prism-bar {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 0;
+            box-shadow: none;
+            overflow: visible;
+            isolation: isolate;
+        }
+
+        .prism-bar::before,
+        .prism-bar::after {
+            display: none;
+        }
+
+        .prism-sphere {
+            width: var(--pill-width);
+            height: var(--pill-height);
+            border-radius: 999px;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 0;
+            box-shadow: none;
+            filter: none;
+            z-index: 20;
+        }
+
+        .prism-sphere.dragging {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .prism-sphere::before,
+        .prism-sphere::after,
+        .prism-core,
+        .prism-caustic {
+            display: none;
+        }
+
+        .icon-box {
+            z-index: 30;
+        }
+        /* Ported liquid-glass tab tuning from the provided WebGL demo. */
+        .liquid-tabs-canvas {
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            z-index: 5;
+        }
+
+        .prism-nav-wrapper {
+            filter: drop-shadow(0 24px 36px rgba(14, 31, 52, 0.18));
+        }
+
+        .prism-bar {
+            overflow: visible;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .prism-sphere {
+            opacity: 1;
+            mix-blend-mode: normal;
+        }
+
+        .prism-sphere.dragging {
+            cursor: grabbing;
+        }
+
+        .icon-box i {
+            color: rgba(3, 12, 23, 0.46);
+            filter: drop-shadow(0 1px 8px rgba(255, 255, 255, 0.42));
+            transition: color 180ms ease, filter 180ms ease, transform 180ms ease;
+        }
+
+        .icon-box.active i {
+            color: rgba(0, 0, 0, 0.88);
+            filter: drop-shadow(0 7px 15px rgba(0, 0, 0, 0.16)) drop-shadow(0 1px 11px rgba(255, 255, 255, 0.72));
+        }
+        /* Keep the physical travelling capsule visible while the shader handles fine refraction. */
+        .prism-bar.is-dragging {
+            cursor: grabbing;
+        }
+
+        .prism-sphere {
+            pointer-events: auto;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 1px solid rgba(255,255,255,0.42);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.72),
+                inset 0 -1px 4px rgba(0,58,120,0.08),
+                0 8px 16px rgba(10,40,76,0.05);
+            filter: drop-shadow(var(--liquid-shadow-x) 10px 14px rgba(38,105,190,0.08));
+            opacity: 0.42;
+            transition: width 0.18s ease, height 0.18s ease, border-radius 0.18s ease, opacity 0.12s ease, filter 0.12s ease;
+        }
+
+        .prism-sphere.dragging {
+            background: transparent;
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.84),
+                inset 0 -1px 5px rgba(0,70,150,0.10),
+                0 10px 18px rgba(10,40,76,0.08);
+            opacity: 0.52;
+        }
+
+        .prism-sphere::before,
+        .prism-sphere::after,
+        .prism-core,
+        .prism-caustic {
+            display: none;
         }
 
         /* --- 4. Lab / Photo editor --- */
@@ -880,7 +1112,7 @@
 
     <!-- MAIN CONTENT -->
     <main id="content-container">
-        
+
         <!-- Page 0: Home -->
         <section id="page-0" class="page active p-6 md:p-12">
             <div class="max-w-5xl mx-auto pt-10">
@@ -1094,8 +1326,9 @@
     <!-- NAVIGATION BAR -->
     <div class="prism-nav-wrapper">
         <div class="prism-bar" id="bar">
+            <canvas class="liquid-tabs-canvas" id="liquidTabsCanvas" aria-hidden="true"></canvas>
             <!-- 液态棱镜圆角矩形 -->
-            <div class="prism-sphere" id="sphere"></div>
+            <div class="prism-sphere" id="sphere"><span class="prism-core"></span><span class="prism-caustic"></span></div>
 
             <!-- 图标 (对应4个页面) -->
             <div class="icon-box" data-index="0"><i class="fa-solid fa-house"></i></div>
@@ -1117,54 +1350,534 @@
             damping: 0.8,      // Damping (friction)
             scaleRange: 100,   // Icon proximity detection range
             dragSensitivity: 0.95, // How directly the sphere follows the finger
+            maxLiquidStretch: 0.2,
+            maxLiquidTilt: 10,
             vibrateDuration: 50 // Haptic feedback duration
         };
 
         const state = {
             isDragging: false,
             startX: 0,
-            
+            pointerDown: false,
+            lastClientX: 0,
+            dragStartClientX: 0,
+            hasDragged: false,
+            suppressClick: false,
+
             x: 0,              // Current position of the sphere (left edge)
             vx: 0,             // Velocity
             targetX: 0,        // Target snap position
-            
+
             lastFrameTime: performance.now(),
             currentIndex: 0,
+            liquidSpeed: 0,
             animationFrame: null
         };
 
         // DOM Elements
         const bar = document.getElementById('bar');
         const sphere = document.getElementById('sphere');
+        const liquidTabsCanvas = document.getElementById('liquidTabsCanvas');
         const icons = document.querySelectorAll('.icon-box');
         const root = document.documentElement;
-        
+
         // CSS Variables
         const style = getComputedStyle(root);
-        const BAR_PADDING_PX = parseFloat(style.getPropertyValue('--bar-padding')); 
-        const SPHERE_SIZE_NORMAL = parseFloat(style.getPropertyValue('--ball-size'));
+        const BAR_PADDING_PX = parseFloat(style.getPropertyValue('--bar-padding'));
+        const PILL_WIDTH_NORMAL = parseFloat(style.getPropertyValue('--pill-width'));
+        const PILL_HEIGHT_NORMAL = parseFloat(style.getPropertyValue('--pill-height'));
+        const SPHERE_SIZE_NORMAL = PILL_WIDTH_NORMAL;
         const NUM_ICONS = icons.length;
+        const liquidTabsRenderer = createLiquidTabsRenderer(liquidTabsCanvas);
+
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+        function createLiquidTabsRenderer(canvas) {
+            const gl = canvas?.getContext('webgl', {
+                alpha: true,
+                antialias: true,
+                premultipliedAlpha: false,
+                preserveDrawingBuffer: false
+            });
+            if (!gl) return null;
+
+            const sceneCanvas = document.createElement('canvas');
+            const sceneCtx = sceneCanvas.getContext('2d', { alpha: false });
+            const texture = gl.createTexture();
+            let pixelRatio = 1;
+            let viewportWidth = 1;
+            let viewportHeight = 1;
+            let tabRect = { left: 0, top: 0, width: 1, height: 1 };
+            let sceneDirty = true;
+            let lastBackdropUpload = -Infinity;
+            let cachedHintNodes = [];
+            let lastHintScan = -Infinity;
+            const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+            const vertexSource = `
+                attribute vec2 a_position;
+                void main() {
+                    gl_Position = vec4(a_position, 0.0, 1.0);
+                }
+            `;
+
+            const fragmentSource = `
+                precision highp float;
+
+                uniform sampler2D u_scene;
+                uniform vec2 u_viewportSize;
+                uniform vec2 u_resolution;
+                uniform vec2 u_tabPos;
+                uniform vec2 u_tabSize;
+                uniform vec2 u_pointer;
+                uniform float u_pixelRatio;
+                uniform float u_time;
+                uniform float u_radius;
+                uniform float u_refractionHeight;
+                uniform float u_refractionAmount;
+                uniform float u_blurRadius;
+                uniform float u_pointerStrength;
+                uniform vec2 u_thumbCenter;
+                uniform vec2 u_thumbSize;
+                uniform float u_thumbVelocity;
+                uniform float u_thumbStrength;
+
+                float sdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
+                    vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
+                    float outside = length(max(cornerCoord, 0.0)) - radius;
+                    float inside = min(max(cornerCoord.x, cornerCoord.y), 0.0);
+                    return outside + inside;
+                }
+
+                vec2 gradSdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
+                    vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
+                    if (cornerCoord.x >= 0.0 || cornerCoord.y >= 0.0) {
+                        vec2 m = max(cornerCoord, 0.0001);
+                        return sign(coord) * normalize(m);
+                    }
+                    float gradX = step(cornerCoord.y, cornerCoord.x);
+                    return sign(coord) * vec2(gradX, 1.0 - gradX);
+                }
+
+                float circleMap(float x) {
+                    x = clamp(x, 0.0, 0.999);
+                    return 1.0 - sqrt(1.0 - x * x);
+                }
+
+                float band(float y, float center, float width) {
+                    return 1.0 - smoothstep(0.0, width, abs(y - center));
+                }
+
+                vec3 saturateColor(vec3 color, float amount) {
+                    float luma = dot(color, vec3(0.213, 0.715, 0.072));
+                    return mix(vec3(luma), color, amount);
+                }
+
+                vec3 mirrorGrade(vec3 color) {
+                    color = (color - 0.5) * 1.28 + 0.5;
+                    return clamp(color, 0.0, 1.0);
+                }
+
+                vec3 sampleScene(vec2 screenCoord, float radius) {
+                    vec2 uv = clamp(screenCoord / u_viewportSize, vec2(0.0), vec2(1.0));
+                    vec2 stepSize = vec2(radius) / u_viewportSize;
+                    vec3 color = vec3(0.0);
+                    color += texture2D(u_scene, uv + stepSize * vec2(-1.50, -0.25)).rgb * 0.055;
+                    color += texture2D(u_scene, uv + stepSize * vec2(-1.00,  0.90)).rgb * 0.070;
+                    color += texture2D(u_scene, uv + stepSize * vec2(-0.70, -1.20)).rgb * 0.075;
+                    color += texture2D(u_scene, uv + stepSize * vec2(-0.25,  0.35)).rgb * 0.105;
+                    color += texture2D(u_scene, uv).rgb * 0.205;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 0.25, -0.45)).rgb * 0.105;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 0.75,  1.20)).rgb * 0.075;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 1.10, -0.85)).rgb * 0.070;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 1.55,  0.25)).rgb * 0.055;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 0.00,  1.65)).rgb * 0.095;
+                    color += texture2D(u_scene, uv + stepSize * vec2( 0.00, -1.65)).rgb * 0.095;
+                    color = saturateColor(color, 1.58);
+                    color = (color - 0.5) * 1.16 + 0.5;
+                    color += 0.045;
+                    return clamp(color, 0.0, 1.0);
+                }
+
+                vec3 sampleAgslDispersion(vec2 refractedCoord, vec2 grad, float displacement, vec2 centeredCoord, vec2 halfSize, float chromatic, float radius) {
+                    float dispersionIntensity = chromatic * 2.35 * ((centeredCoord.x * centeredCoord.y) / max(1.0, halfSize.x * halfSize.y));
+                    vec2 dispersedCoord = grad * displacement * dispersionIntensity;
+                    vec3 color = vec3(0.0);
+                    vec3 red = sampleScene(refractedCoord + dispersedCoord, radius);
+                    color.r += red.r / 3.5;
+                    vec3 orange = sampleScene(refractedCoord + dispersedCoord * (2.0 / 3.0), radius);
+                    color.r += orange.r / 3.5;
+                    color.g += orange.g / 7.0;
+                    vec3 yellow = sampleScene(refractedCoord + dispersedCoord * (1.0 / 3.0), radius);
+                    color.r += yellow.r / 3.5;
+                    color.g += yellow.g / 3.5;
+                    vec3 green = sampleScene(refractedCoord, radius);
+                    color.g += green.g / 3.5;
+                    vec3 cyan = sampleScene(refractedCoord - dispersedCoord * (1.0 / 3.0), radius);
+                    color.g += cyan.g / 3.5;
+                    color.b += cyan.b / 3.0;
+                    vec3 blue = sampleScene(refractedCoord - dispersedCoord * (2.0 / 3.0), radius);
+                    color.b += blue.b / 3.0;
+                    vec3 purple = sampleScene(refractedCoord - dispersedCoord, radius);
+                    color.r += purple.r / 7.0;
+                    color.b += purple.b / 3.0;
+                    return clamp(color, 0.0, 1.0);
+                }
+
+                float defaultHighlight(vec2 grad) {
+                    vec2 normal = normalize(vec2(0.70710678, 0.70710678));
+                    return abs(dot(grad, normal));
+                }
+
+                vec4 over(vec4 dst, vec4 src) {
+                    return src + dst * (1.0 - src.a);
+                }
+
+                void main() {
+                    vec2 local = vec2(gl_FragCoord.x / u_pixelRatio, u_tabSize.y - gl_FragCoord.y / u_pixelRatio);
+                    vec2 halfSize = u_tabSize * 0.5;
+                    vec2 centered = local - halfSize;
+                    float sd = sdRoundedRect(centered, halfSize - vec2(1.0), u_radius);
+                    float mask = 1.0 - smoothstep(0.0, 1.35, sd);
+
+                    if (mask <= 0.002) {
+                        gl_FragColor = vec4(0.0);
+                        return;
+                    }
+
+                    vec2 grad = gradSdRoundedRect(centered, halfSize, min(u_radius * 1.45, min(halfSize.x, halfSize.y)));
+                    vec2 pointerDelta = local - u_pointer;
+                    float pointerField = exp(-dot(pointerDelta, pointerDelta) / 21000.0) * u_pointerStrength;
+                    vec2 pointerNormal = normalize(pointerDelta + vec2(0.001));
+                    grad = normalize(grad + pointerNormal * pointerField * 0.45 + normalize(centered + vec2(0.001)) * 0.06);
+
+                    float insideDistance = max(-sd, 0.0);
+                    float edgeFactor = circleMap(1.0 - insideDistance / u_refractionHeight);
+                    float displacement = edgeFactor * u_refractionAmount;
+                    vec2 screen = u_tabPos + local;
+                    vec2 refracted = screen - grad * displacement;
+                    vec3 color = sampleScene(refracted, u_blurRadius);
+
+                    float highlight = defaultHighlight(grad) * 0.28;
+                    float rim = smoothstep(1.2, 0.0, abs(sd)) * 0.34;
+                    float innerShade = smoothstep(-1.0, 1.0, dot(grad, normalize(vec2(0.0, 1.0)))) * 0.10;
+                    float pointerGlint = pointerField * exp(-abs(sd + 10.0) / 34.0) * 0.22;
+                    float y01 = local.y / max(1.0, u_tabSize.y);
+                    float mirrorZone = smoothstep(0.42, 0.98, y01);
+                    vec2 mirrorCoord = vec2(screen.x + grad.x * displacement * 0.50, u_tabPos.y + u_tabSize.y * (0.18 + (1.0 - y01) * 0.45));
+                    vec3 mirrorColor = mirrorGrade(sampleScene(mirrorCoord, max(2.0, u_blurRadius * 0.28)));
+                    float lowerChrome = band(y01, 0.78, 0.34) * 0.26;
+                    float bottomLine = band(y01, 0.90, 0.045) * 0.48;
+                    float topLine = band(y01, 0.18, 0.035) * 0.28;
+
+                    color = mix(color, mirrorColor, mirrorZone * 0.38);
+                    color = mix(color, vec3(1.0), highlight + rim * 0.20 + pointerGlint + topLine + bottomLine);
+                    color = mix(color, vec3(0.02, 0.07, 0.08), innerShade + mirrorZone * 0.12);
+                    color += rim * vec3(0.42, 0.78, 0.92);
+                    color += lowerChrome * vec3(0.64, 0.88, 1.0);
+                    float alpha = mask * (0.86 + rim * 0.14 + mirrorZone * 0.08);
+
+                    vec2 thumbHalf = u_thumbSize * 0.5;
+                    vec2 thumbCoord = local - u_thumbCenter;
+                    float thumbSd = sdRoundedRect(thumbCoord, thumbHalf - vec2(1.0), thumbHalf.y);
+                    float thumbMask = 1.0 - smoothstep(0.0, 1.25, thumbSd);
+                    float thumbInside = max(-thumbSd, 0.0);
+                    float thumbEdge = circleMap(1.0 - thumbInside / max(1.0, thumbHalf.y * 0.58));
+                    vec2 thumbGrad = gradSdRoundedRect(thumbCoord, thumbHalf, thumbHalf.y);
+                    vec2 flow = vec2(sign(u_thumbVelocity) * min(abs(u_thumbVelocity) * 0.03, 0.55), 0.0);
+                    thumbGrad = normalize(thumbGrad + flow + pointerNormal * pointerField * 0.30 + vec2(0.001));
+
+                    float thumbProgress = clamp(u_thumbStrength, 0.0, 1.0);
+                    float thumbDisplacement = thumbProgress * 16.0 + thumbEdge * (22.0 * thumbProgress + abs(u_thumbVelocity) * 0.36);
+                    vec2 thumbRefracted = screen - thumbGrad * thumbDisplacement;
+                    vec3 thumbBase = sampleScene(thumbRefracted, max(3.0, u_blurRadius * 0.45));
+                    vec3 thumbDispersion = sampleAgslDispersion(thumbRefracted, thumbGrad, thumbDisplacement, thumbCoord, thumbHalf, thumbProgress, max(3.0, u_blurRadius * 0.42));
+                    vec3 thumbColor = mix(thumbBase, thumbDispersion, thumbProgress);
+
+                    float thumbRim = smoothstep(1.0, 0.0, abs(thumbSd)) * 0.42;
+                    float thumbHighlight = defaultHighlight(thumbGrad) * 0.50 * thumbProgress;
+                    float thumbInnerShadow = smoothstep(-0.15, 1.0, dot(thumbGrad, normalize(vec2(0.0, 1.0)))) * 0.18 * thumbProgress;
+                    float thumbVelocityGlint = min(abs(u_thumbVelocity) * 0.035, 0.20) * thumbProgress;
+                    float thumbY01 = (thumbCoord.y + thumbHalf.y) / max(1.0, u_thumbSize.y);
+                    float thumbMirrorZone = smoothstep(0.38, 1.0, thumbY01) * thumbProgress;
+                    vec2 thumbMirrorCoord = vec2(screen.x + thumbGrad.x * thumbDisplacement * 0.65, screen.y - thumbCoord.y * 0.72 + thumbGrad.y * 5.0);
+                    vec3 thumbMirrorColor = mirrorGrade(sampleScene(thumbMirrorCoord, max(2.0, u_blurRadius * 0.22)));
+                    float thumbBottomLine = band(thumbY01, 0.88, 0.052) * 0.62 * thumbProgress;
+                    float thumbTopLine = band(thumbY01, 0.14, 0.045) * 0.42 * thumbProgress;
+                    float thumbCornerColor = pow(thumbEdge, 2.2) * thumbProgress * 0.32;
+
+                    thumbColor = mix(thumbColor, thumbMirrorColor, thumbMirrorZone * 0.46);
+                    thumbColor = mix(thumbColor, vec3(1.0), thumbHighlight + thumbRim * 0.22 + thumbVelocityGlint + thumbTopLine + thumbBottomLine);
+                    thumbColor = mix(thumbColor, vec3(0.0, 0.0, 0.0), thumbInnerShadow + thumbMirrorZone * 0.10);
+                    thumbColor += thumbRim * vec3(0.70, 0.92, 1.0) * thumbProgress;
+                    thumbColor += thumbCornerColor * vec3(1.0, 0.32, 0.12);
+                    float thumbAlpha = thumbMask * (0.54 + thumbProgress * 0.36 + thumbRim * 0.18 + thumbMirrorZone * 0.08);
+                    color = mix(color, thumbColor, clamp(thumbAlpha, 0.0, 0.92));
+                    alpha = max(alpha, thumbMask * (0.78 + thumbRim * 0.12));
+
+                    gl_FragColor = vec4(clamp(color, 0.0, 1.0), alpha);
+                }
+            `;
+
+            function compileShader(type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.warn(gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertex = compileShader(gl.VERTEX_SHADER, vertexSource);
+            const fragment = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+            if (!vertex || !fragment) return null;
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vertex);
+            gl.attachShader(program, fragment);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.warn(gl.getProgramInfoLog(program));
+                return null;
+            }
+
+            const vertices = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertices);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+            const loc = {
+                position: gl.getAttribLocation(program, 'a_position'),
+                scene: gl.getUniformLocation(program, 'u_scene'),
+                viewportSize: gl.getUniformLocation(program, 'u_viewportSize'),
+                resolution: gl.getUniformLocation(program, 'u_resolution'),
+                tabPos: gl.getUniformLocation(program, 'u_tabPos'),
+                tabSize: gl.getUniformLocation(program, 'u_tabSize'),
+                pointer: gl.getUniformLocation(program, 'u_pointer'),
+                pixelRatio: gl.getUniformLocation(program, 'u_pixelRatio'),
+                time: gl.getUniformLocation(program, 'u_time'),
+                radius: gl.getUniformLocation(program, 'u_radius'),
+                refractionHeight: gl.getUniformLocation(program, 'u_refractionHeight'),
+                refractionAmount: gl.getUniformLocation(program, 'u_refractionAmount'),
+                blurRadius: gl.getUniformLocation(program, 'u_blurRadius'),
+                pointerStrength: gl.getUniformLocation(program, 'u_pointerStrength'),
+                thumbCenter: gl.getUniformLocation(program, 'u_thumbCenter'),
+                thumbSize: gl.getUniformLocation(program, 'u_thumbSize'),
+                thumbVelocity: gl.getUniformLocation(program, 'u_thumbVelocity'),
+                thumbStrength: gl.getUniformLocation(program, 'u_thumbStrength')
+            };
+
+            function resize() {
+                pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+                viewportWidth = window.innerWidth || 1;
+                viewportHeight = window.innerHeight || 1;
+                tabRect = bar.getBoundingClientRect();
+                const canvasWidth = Math.max(1, Math.round(tabRect.width * pixelRatio));
+                const canvasHeight = Math.max(1, Math.round(tabRect.height * pixelRatio));
+                const sceneWidth = Math.max(1, Math.round(viewportWidth * pixelRatio));
+                const sceneHeight = Math.max(1, Math.round(viewportHeight * pixelRatio));
+                if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+                    canvas.style.width = tabRect.width + 'px';
+                    canvas.style.height = tabRect.height + 'px';
+                }
+                if (sceneCanvas.width !== sceneWidth || sceneCanvas.height !== sceneHeight) {
+                    sceneCanvas.width = sceneWidth;
+                    sceneCanvas.height = sceneHeight;
+                    sceneDirty = true;
+                }
+                sceneCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+                pointer.targetX = tabRect.width * 0.5;
+                pointer.targetY = tabRect.height * 0.5;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+
+            function roundedRect(ctx, x, y, w, h, r) {
+                const radius = Math.min(r, w * 0.5, h * 0.5);
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.arcTo(x + w, y, x + w, y + h, radius);
+                ctx.arcTo(x + w, y + h, x, y + h, radius);
+                ctx.arcTo(x, y + h, x, y, radius);
+                ctx.arcTo(x, y, x + w, y, radius);
+                ctx.closePath();
+            }
+
+            function drawDomHints(ctx, time) {
+                const selectors = '.page.active .hero-text, .page.active h1, .page.active h2, .page.active p, .page.active .card-border, .page.active .lab-panel, .page.active .lab-card, .page.active button, .page.active img';
+                if (sceneDirty || time - lastHintScan > 320) {
+                    cachedHintNodes = Array.from(document.querySelectorAll(selectors)).slice(0, 24);
+                    lastHintScan = time;
+                }
+                const nodes = cachedHintNodes;
+                nodes.forEach((node) => {
+                    const rect = node.getBoundingClientRect();
+                    if (rect.bottom < 0 || rect.top > viewportHeight || rect.right < 0 || rect.left > viewportWidth) return;
+                    const tag = node.tagName.toLowerCase();
+                    const isText = tag === 'h1' || tag === 'h2' || tag === 'p' || node.classList.contains('hero-text');
+                    ctx.save();
+                    if (isText) {
+                        const text = (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 34);
+                        if (text) {
+                            const size = Math.max(12, Math.min(rect.height * 0.72, node.classList.contains('hero-text') ? 92 : 28));
+                            ctx.globalAlpha = node.classList.contains('hero-text') ? 0.10 : 0.16;
+                            ctx.fillStyle = '#101820';
+                            ctx.font = `800 ${size}px Inter, Arial, sans-serif`;
+                            ctx.fillText(text, rect.left, rect.top + size);
+                        }
+                    } else {
+                        ctx.globalAlpha = tag === 'img' ? 0.20 : 0.13;
+                        ctx.fillStyle = tag === 'button' ? '#111820' : '#ffffff';
+                        ctx.strokeStyle = 'rgba(20, 33, 47, 0.20)';
+                        roundedRect(ctx, rect.left, rect.top, Math.max(8, rect.width), Math.max(8, rect.height), Math.min(18, rect.height * 0.2));
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                });
+            }
+
+            function drawBackdropTexture(time, velocity) {
+                const uploadInterval = state.isDragging || Math.abs(velocity || 0) > 0.45 ? 90 : 220;
+                if (!sceneDirty && time - lastBackdropUpload < uploadInterval) return;
+                lastBackdropUpload = time;
+                const ctx = sceneCtx;
+                const w = viewportWidth;
+                const h = viewportHeight;
+                ctx.clearRect(0, 0, w, h);
+
+                const base = ctx.createLinearGradient(0, 0, w, h);
+                base.addColorStop(0.00, '#f7f8f4');
+                base.addColorStop(0.34, '#edf5fb');
+                base.addColorStop(0.62, '#fbf2e6');
+                base.addColorStop(1.00, '#dcecfb');
+                ctx.fillStyle = base;
+                ctx.fillRect(0, 0, w, h);
+
+                drawDomHints(ctx, time);
+
+                ctx.save();
+                ctx.globalAlpha = 0.74;
+                ctx.lineCap = 'round';
+                const t = time * 0.00042;
+                const ribbons = [
+                    ['#0275ff', 0.10, 0.84, 1.05, 0.30, 58, 0.0],
+                    ['#5ed1e8', -0.08, 0.70, 0.86, 0.92, 42, 1.6],
+                    ['#ffffff', 0.03, 0.91, 1.12, 0.52, 26, 3.1],
+                    ['#153fe4', -0.14, 0.98, 1.02, 0.46, 35, 2.4]
+                ];
+                for (const [color, sx, sy, ex, ey, width, phase] of ribbons) {
+                    const drift = Math.sin(t + phase) * 26;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = width;
+                    ctx.beginPath();
+                    ctx.moveTo(w * sx - 80, h * sy + drift);
+                    ctx.bezierCurveTo(w * 0.26, h * (sy - 0.30) - drift, w * 0.60, h * (ey + 0.35) + drift, w * ex + 80, h * ey - drift);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.globalAlpha = 0.34;
+                const glow = ctx.createRadialGradient(w * 0.50, h - 66, 10, w * 0.50, h - 66, Math.max(160, w * 0.34));
+                glow.addColorStop(0, '#ffffff');
+                glow.addColorStop(0.42, '#9edcff');
+                glow.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = glow;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sceneCanvas);
+                sceneDirty = false;
+            }
+
+            resize();
+
+            return {
+                resize,
+                invalidate() {
+                    sceneDirty = true;
+                    lastHintScan = -Infinity;
+                },
+                render(time, velocity) {
+                    resize();
+                    drawBackdropTexture(time, velocity);
+                    pointer.x += (pointer.targetX - pointer.x) * 0.14;
+                    pointer.y += (pointer.targetY - pointer.y) * 0.14;
+                    pointer.targetStrength = state.isDragging ? 1.0 : clamp(Math.abs(velocity || 0) / 8, 0.16, 0.42);
+                    pointer.strength += (pointer.targetStrength - pointer.strength) * 0.12;
+
+                    const speed = clamp(Math.abs(velocity || 0) / 11, 0, 1);
+                    const thumbW = Math.max(PILL_WIDTH_NORMAL, sphere.offsetWidth || PILL_WIDTH_NORMAL);
+                    const thumbH = Math.max(PILL_HEIGHT_NORMAL, sphere.offsetHeight || PILL_HEIGHT_NORMAL);
+                    const stretch = state.isDragging ? Math.min(34, Math.abs(velocity || 0) * 3.2) : Math.min(24, Math.abs(velocity || 0) * 2.4);
+                    const thumbCenterX = state.x + thumbW * 0.5;
+                    const thumbStrength = state.isDragging ? 0.82 : 0.48 + speed * 0.30;
+
+                    gl.viewport(0, 0, canvas.width, canvas.height);
+                    gl.clearColor(0, 0, 0, 0);
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+                    gl.enable(gl.BLEND);
+                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                    gl.useProgram(program);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vertices);
+                    gl.enableVertexAttribArray(loc.position);
+                    gl.vertexAttribPointer(loc.position, 2, gl.FLOAT, false, 0, 0);
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    gl.uniform1i(loc.scene, 0);
+                    gl.uniform2f(loc.viewportSize, viewportWidth, viewportHeight);
+                    gl.uniform2f(loc.resolution, canvas.width, canvas.height);
+                    gl.uniform2f(loc.tabPos, tabRect.left, tabRect.top);
+                    gl.uniform2f(loc.tabSize, tabRect.width, tabRect.height);
+                    gl.uniform2f(loc.pointer, pointer.x, pointer.y);
+                    gl.uniform1f(loc.pixelRatio, pixelRatio);
+                    gl.uniform1f(loc.time, time * 0.001);
+                    gl.uniform1f(loc.radius, tabRect.height * 0.5);
+                    gl.uniform1f(loc.refractionHeight, tabRect.height * 0.38);
+                    gl.uniform1f(loc.refractionAmount, window.innerWidth < 560 ? 20 : 26);
+                    gl.uniform1f(loc.blurRadius, window.innerWidth < 560 ? 6 : 7);
+                    gl.uniform1f(loc.pointerStrength, pointer.strength);
+                    gl.uniform2f(loc.thumbCenter, thumbCenterX, tabRect.height * 0.5);
+                    gl.uniform2f(loc.thumbSize, thumbW + stretch, thumbH);
+                    gl.uniform1f(loc.thumbVelocity, velocity || 0);
+                    gl.uniform1f(loc.thumbStrength, thumbStrength);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                }
+            };
+        }
 
         // ------------------------------------------------
         // INITIALIZATION
         // ------------------------------------------------
         function init() {
             // Set initial sphere size based on CSS variable
-            sphere.style.width = `${SPHERE_SIZE_NORMAL}px`;
-            sphere.style.height = `${SPHERE_SIZE_NORMAL}px`;
-            
+            sphere.style.width = `${PILL_WIDTH_NORMAL}px`;
+            sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
+
             // Start at the first icon
-            state.currentIndex = 0; 
+            state.currentIndex = 0;
             snapToIcon(icons[state.currentIndex], false); // false = no animation on init
-            
+
             // Initial positioning
-            state.x = state.targetX; 
-            
+            state.x = state.targetX;
+
             updateSphereVisual();
-            icons[state.currentIndex].classList.add('active'); 
-            
+            icons[state.currentIndex].classList.add('active');
+
             state.animationFrame = requestAnimationFrame(physicsLoop);
-            
+
             // 入场动画
             gsap.from(".prism-nav-wrapper", { y: 100, duration: 1, ease: "power4.out", delay: 0.5 });
             gsap.from(".hero-text", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 });
@@ -1178,25 +1891,31 @@
         function switchPageContent(index) {
             const currentActive = document.querySelector('.page.active');
             const nextActive = document.getElementById(`page-${index}`);
-            
+
             if (currentActive === nextActive) return;
+            if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
 
             // Simple GSAP transition
             if (currentActive) {
-                gsap.to(currentActive, { 
-                    opacity: 0, 
-                    duration: 0.2, 
+                gsap.to(currentActive, {
+                    opacity: 0,
+                    duration: 0.2,
                     onComplete: () => {
                         currentActive.classList.remove('active');
                         nextActive.classList.add('active');
-                        gsap.fromTo(nextActive, 
+                        if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
+                        gsap.fromTo(nextActive,
                             { opacity: 0, y: 10 },
                             {
                                 opacity: 1,
                                 y: 0,
                                 duration: 0.4,
                                 onStart: () => {
+                                    if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                                     if (index === 3) animateLabIn();
+                                },
+                                onComplete: () => {
+                                    if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                                 }
                             }
                         );
@@ -1204,6 +1923,7 @@
                 });
             } else {
                 nextActive.classList.add('active');
+                if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                 gsap.set(nextActive, { opacity: 1 });
                 if (index === 3) animateLabIn();
             }
@@ -1224,15 +1944,15 @@
         function snapToIcon(iconElement, shouldAnimatePage = true) {
             const iconIndex = parseInt(iconElement.getAttribute('data-index'));
             const barInnerWidth = bar.offsetWidth - (BAR_PADDING_PX * 2);
-            
+
             // Each icon-box takes an equal width
-            const iconBoxWidth = barInnerWidth / NUM_ICONS; 
-            
+            const iconBoxWidth = barInnerWidth / NUM_ICONS;
+
             // 1. Calculate Icon Center point
             const centerRelToInnerBar = (iconIndex * iconBoxWidth) + (iconBoxWidth / 2);
-            
+
             // 2. Calculate Sphere Left Edge Target Position
-            state.targetX = BAR_PADDING_PX + centerRelToInnerBar - (SPHERE_SIZE_NORMAL / 2);
+            state.targetX = BAR_PADDING_PX + centerRelToInnerBar - (PILL_WIDTH_NORMAL / 2);
 
             // Trigger Page Switch if changed
             if (state.currentIndex !== iconIndex && shouldAnimatePage) {
@@ -1247,22 +1967,22 @@
         function physicsLoop(currentTime) {
             const deltaTime = currentTime - state.lastFrameTime;
             state.lastFrameTime = currentTime;
-            
+
             let currentXBeforeUpdate = state.x;
-            const currentSphereWidth = sphere.offsetWidth; 
+            const currentSphereWidth = sphere.offsetWidth;
 
             if (state.isDragging) {
                 // DRAGGING STATE
                 const barRect = bar.getBoundingClientRect();
-                const pointerXRel = state.startX - barRect.left; 
-                
+                const pointerXRel = state.startX - barRect.left;
+
                 // Calculate new position based on pointer
                 const maxRight = bar.offsetWidth - currentSphereWidth;
                 let newX = Math.min(Math.max(0, pointerXRel - (currentSphereWidth / 2)), maxRight);
 
                 // Smooth follow
-                state.x += (newX - state.x) * CONFIG.dragSensitivity; 
-                
+                state.x += (newX - state.x) * CONFIG.dragSensitivity;
+
             } else {
                 // SNAPPING STATE
                 const dist = state.targetX - state.x;
@@ -1278,14 +1998,16 @@
                 }
             }
 
-            // Calculate instantaneous velocity for chromatic aberration
-            const currentSpeed = (state.x - currentXBeforeUpdate) / deltaTime * 16; 
+            // Calculate instantaneous velocity for refractive drag details.
+            const safeDeltaTime = Math.max(deltaTime || 16, 8);
+            const currentSpeed = (state.x - currentXBeforeUpdate) / safeDeltaTime * 16;
             updateChromaticAberration(currentSpeed);
-            
+            if (liquidTabsRenderer) liquidTabsRenderer.render(currentTime, currentSpeed);
+
             // Apply visual updates and check proximity
             updateSphereVisual();
             detectActiveIcon();
-            
+
             state.animationFrame = requestAnimationFrame(physicsLoop);
         }
 
@@ -1294,47 +2016,67 @@
         // ------------------------------------------------
         function updateChromaticAberration(speed) {
             const absSpeed = Math.abs(speed);
-            const aberrationOpacity = Math.min(absSpeed * 0.1, 1);
-            
-            root.style.setProperty('--aberration-x', `${-speed * 0.5}px`); 
-            root.style.setProperty('--aberration-opacity', aberrationOpacity);
+            const intensity = clamp(absSpeed / 11, 0, 1);
+            const direction = speed === 0 ? 0 : Math.sign(speed);
+            const aberrationShift = clamp(-speed * 0.42, -7, 7);
+
+            state.liquidSpeed = intensity;
+            root.style.setProperty('--aberration-x', `${aberrationShift.toFixed(2)}px`);
+            root.style.setProperty('--aberration-opacity', (intensity * 0.92).toFixed(3));
+            root.style.setProperty('--liquid-speed', intensity.toFixed(3));
+            root.style.setProperty('--liquid-stretch', (1 + intensity * CONFIG.maxLiquidStretch).toFixed(3));
+            root.style.setProperty('--liquid-squash', (1 - intensity * 0.075).toFixed(3));
+            root.style.setProperty('--liquid-tilt', `${(direction * intensity * CONFIG.maxLiquidTilt).toFixed(2)}deg`);
+            const edge = 0.42 + intensity * 0.58;
+            root.style.setProperty('--liquid-edge', edge.toFixed(3));
+            root.style.setProperty('--liquid-edge-blur', `${(11 + edge * 12).toFixed(2)}px`);
+            root.style.setProperty('--liquid-edge-ring', `${(1 + edge).toFixed(2)}px`);
+            root.style.setProperty('--liquid-caustic-opacity', (0.28 + intensity * 0.34).toFixed(3));
+            root.style.setProperty('--liquid-shadow-x', `${(aberrationShift * -0.15).toFixed(2)}px`);
+            root.style.setProperty('--liquid-caustic-x', `${(aberrationShift * -0.16).toFixed(2)}px`);
+            root.style.setProperty('--liquid-blue-shift', `${(aberrationShift * -1).toFixed(2)}px`);
+            root.style.setProperty('--liquid-drift', `${clamp(speed * -1.9, -24, 24).toFixed(2)}px`);
+            root.style.setProperty('--liquid-glare-x', `${clamp(32 - direction * intensity * 18, 16, 54).toFixed(1)}%`);
         }
 
         function updateSphereVisual() {
-            // Update position
-            sphere.style.transform = `translate(${state.x}px, -50%)`;
-            
+            const sphereWidth = sphere.offsetWidth || SPHERE_SIZE_NORMAL;
+            const sphereCenter = state.x + (sphereWidth / 2);
+            root.style.setProperty('--nav-active-center', `${sphereCenter.toFixed(2)}px`);
+
+            // Update position with velocity-driven liquid deformation.
+            sphere.style.transform = `translate(${state.x}px, -50%) scale(var(--liquid-stretch), var(--liquid-squash)) rotate(var(--liquid-tilt))`;
+
             // Update size and cursor
             if (state.isDragging) {
-                // Locked to large size/radius during drag
-                root.style.setProperty('--ball-size', 'var(--ball-active-size)');
-                root.style.setProperty('--ball-radius-small', 'var(--ball-radius-large)');
+                const stretch = 1 + (state.liquidSpeed || 0) * 0.08;
+                sphere.style.width = `${PILL_WIDTH_NORMAL * stretch}px`;
+                sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
                 sphere.style.cursor = 'grabbing';
             } else {
-                // Snap state: CSS transition handles recovery
-                root.style.setProperty('--ball-size', '58px'); // 适配 CSS 变量初始值
-                root.style.setProperty('--ball-radius-small', '16px'); 
+                sphere.style.width = `${PILL_WIDTH_NORMAL}px`;
+                sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
                 sphere.style.cursor = 'grab';
             }
         }
-        
+
         function detectActiveIcon() {
             const sphereCenter = state.x + (sphere.offsetWidth / 2);
             let nearestIndex = -1;
             let minDist = Infinity;
 
             const iconBoxWidth = (bar.offsetWidth - (BAR_PADDING_PX * 2)) / NUM_ICONS;
-            
+
             icons.forEach((icon, index) => {
                 const iconCenter = BAR_PADDING_PX + (index * iconBoxWidth) + (iconBoxWidth / 2);
                 const dist = Math.abs(sphereCenter - iconCenter);
-                
+
                 // Icon Magnification
                 let scale = 1;
                 if (dist < CONFIG.scaleRange) {
                     const ratio = 1 - (dist / CONFIG.scaleRange);
-                    scale = 1 + (ratio * 0.4); 
-                    
+                    scale = 1 + (ratio * 0.4);
+
                     if (ratio > 0.8) {
                          if (dist < minDist) {
                             minDist = dist;
@@ -2373,69 +3115,97 @@
         function waitLabFrame(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        
+
         // ------------------------------------------------
         // INTERACTION HANDLERS (復刻)
         // ------------------------------------------------
 
-        function handleStart(clientX, event) {
-            if (event.cancelable) event.preventDefault(); 
-            // 允许 sphere 或其子元素触发
-            if (event.target !== sphere && !sphere.contains(event.target)) return;
-            
-            state.vx = 0; 
-            state.isDragging = true;
-            sphere.classList.add('dragging');
-            
-            state.startX = clientX; 
-        }
-
-        function handleMove(clientX) {
-            if (!state.isDragging) return;
-            state.startX = clientX; 
-        }
-
-        function handleEnd() {
-            if (!state.isDragging) return;
-            
-            state.isDragging = false;
-            sphere.classList.remove('dragging');
-            
-            // 1. Find nearest snap target
-            const sphereCenter = state.x + (SPHERE_SIZE_NORMAL / 2); 
+        function nearestIconFromLocalX(localX) {
+            const barInnerWidth = bar.offsetWidth - (BAR_PADDING_PX * 2);
+            const iconBoxWidth = barInnerWidth / NUM_ICONS;
+            const clampedX = clamp(localX - BAR_PADDING_PX, 0, barInnerWidth);
+            let nearestIndex = 0;
             let minDist = Infinity;
-            let nearestIcon = icons[state.currentIndex];
 
-            const iconBoxWidth = (bar.offsetWidth - (BAR_PADDING_PX * 2)) / NUM_ICONS;
-            
             icons.forEach((icon, index) => {
-                const iconCenter = BAR_PADDING_PX + (index * iconBoxWidth) + (iconBoxWidth / 2);
-                const dist = Math.abs(sphereCenter - iconCenter);
-
+                const iconCenter = (index * iconBoxWidth) + (iconBoxWidth / 2);
+                const dist = Math.abs(clampedX - iconCenter);
                 if (dist < minDist) {
                     minDist = dist;
-                    nearestIcon = icon;
+                    nearestIndex = index;
                 }
             });
 
-            // 2. Trigger snap
+            return icons[nearestIndex];
+        }
+
+        function nearestIconFromSphere() {
+            const sphereCenter = state.x + (PILL_WIDTH_NORMAL / 2);
+            return nearestIconFromLocalX(sphereCenter);
+        }
+
+        function handleStart(clientX, event) {
+            if (!bar.contains(event.target)) return;
+            if (event.cancelable) event.preventDefault();
+
+            state.pointerDown = true;
+            state.dragStartClientX = clientX;
+            state.lastClientX = clientX;
+            state.hasDragged = false;
+        }
+
+        function beginDrag(clientX) {
+            state.vx = 0;
+            state.isDragging = true;
+            state.hasDragged = true;
+            state.startX = clientX;
+            sphere.classList.add('dragging');
+            bar.classList.add('is-dragging');
+        }
+
+        function handleMove(clientX) {
+            if (!state.pointerDown) return;
+            state.lastClientX = clientX;
+            const moved = Math.abs(clientX - state.dragStartClientX);
+            if (!state.isDragging && moved > 5) {
+                beginDrag(clientX);
+            }
+            if (state.isDragging) {
+                state.startX = clientX;
+            }
+        }
+
+        function handleEnd(clientX = state.lastClientX) {
+            if (!state.pointerDown) return;
+
+            const wasDragging = state.isDragging;
+            state.pointerDown = false;
+            state.isDragging = false;
+            state.suppressClick = true;
+            sphere.classList.remove('dragging');
+            bar.classList.remove('is-dragging');
+            setTimeout(() => { state.suppressClick = false; }, 0);
+
+            const nearestIcon = wasDragging
+                ? nearestIconFromSphere()
+                : nearestIconFromLocalX((clientX || state.lastClientX) - bar.getBoundingClientRect().left);
+
             snapToIcon(nearestIcon);
             if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
         }
-
         // BIND EVENTS
-        sphere.addEventListener('mousedown', e => handleStart(e.clientX, e));
+        bar.addEventListener('mousedown', e => handleStart(e.clientX, e));
         window.addEventListener('mousemove', e => handleMove(e.clientX));
-        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('mouseup', e => handleEnd(e.clientX));
 
-        sphere.addEventListener('touchstart', e => handleStart(e.touches[0].clientX, e), {passive: false});
+        bar.addEventListener('touchstart', e => handleStart(e.touches[0].clientX, e), {passive: false});
         window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX), {passive: false});
-        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('touchend', e => handleEnd(e.changedTouches?.[0]?.clientX ?? state.lastClientX));
 
         // Click handler for icons
         icons.forEach((icon, idx) => {
             icon.addEventListener('click', (e) => {
-                if (state.isDragging || Math.abs(state.vx) > 1) return;
+                if (state.isDragging || state.suppressClick || Math.abs(state.vx) > 1) return;
                 snapToIcon(icon);
                 if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
             });
@@ -2443,7 +3213,11 @@
 
         window.addEventListener('resize', () => {
            snapToIcon(icons[state.currentIndex], false);
-           state.x = state.targetX; 
+           state.x = state.targetX;
+           if (liquidTabsRenderer) {
+              liquidTabsRenderer.resize();
+              liquidTabsRenderer.invalidate();
+           }
         });
 
         if (document.readyState === 'loading') {
