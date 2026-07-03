@@ -380,6 +380,147 @@
         .prism-caustic {
             display: none;
         }
+        /* Final bottom tab: port of the provided liquid-glass reference. */
+        .tab-dock {
+            position: fixed;
+            left: 50%;
+            bottom: 30px;
+            z-index: 1000;
+            width: min(360px, calc(100vw - 28px));
+            height: 76px;
+            transform: translateX(-50%);
+            overflow: visible;
+        }
+
+        .liquid-tab {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            border-radius: 999px;
+            isolation: isolate;
+            filter: drop-shadow(0 24px 36px rgba(14, 22, 28, 0.22));
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
+            overflow: visible;
+        }
+
+        .liquid-tab.is-dragging {
+            cursor: grabbing;
+        }
+
+        #glass {
+            position: absolute;
+            inset: 0;
+            right: auto;
+            bottom: auto;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .tab-border {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: inherit;
+            pointer-events: none;
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.86),
+                inset 0 -16px 38px rgba(19, 34, 36, 0.13),
+                inset 0 0 0 1px rgba(8, 27, 31, 0.07);
+        }
+
+        .tab-inner {
+            position: relative;
+            z-index: 3;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            align-items: center;
+            height: 100%;
+            gap: 4px;
+            overflow: visible;
+        }
+
+        .tab-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            height: 60px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: rgba(13, 18, 21, 0.58);
+            cursor: pointer;
+            transition: color 180ms ease, transform 180ms ease, text-shadow 180ms ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tab-button span {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+        }
+
+        .tab-button i {
+            font-size: 20px;
+            line-height: 1;
+            transition: transform 240ms cubic-bezier(.2,.85,.2,1), filter 180ms ease;
+        }
+
+        .tab-button:hover {
+            color: rgba(7, 17, 20, 0.92);
+            transform: translateY(-1px);
+        }
+
+        .tab-button:hover i {
+            transform: translateY(-1px) scale(1.04);
+        }
+
+        .tab-button.is-active {
+            color: #061114;
+            text-shadow: 0 1px 14px rgba(255, 255, 255, 0.7);
+        }
+
+        .tab-button.is-active i {
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+            transform: translateY(-1px);
+        }
+
+        .liquid-tab.is-dragging .tab-button.is-active {
+            transform: translateY(-2px) scale(1.08);
+        }
+
+        .liquid-tab.is-dragging .tab-button.is-active i {
+            transform: translateY(-2px) scale(1.16);
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+        }
+
+        @media (max-width: 560px) {
+            .tab-dock {
+                bottom: 14px;
+                width: min(332px, calc(100vw - 24px));
+                height: 72px;
+            }
+
+            .liquid-tab {
+                padding: 7px;
+            }
+
+            .tab-button {
+                height: 56px;
+            }
+        }
 
         /* --- 4. Lab / Photo editor --- */
         .lab-page {
@@ -1324,578 +1465,47 @@
     </main>
 
     <!-- NAVIGATION BAR -->
-    <div class="prism-nav-wrapper">
-        <div class="prism-bar" id="bar">
-            <canvas class="liquid-tabs-canvas" id="liquidTabsCanvas" aria-hidden="true"></canvas>
-            <!-- 液态棱镜圆角矩形 -->
-            <div class="prism-sphere" id="sphere"><span class="prism-core"></span><span class="prism-caustic"></span></div>
-
-            <!-- 图标 (对应4个页面) -->
-            <div class="icon-box" data-index="0"><i class="fa-solid fa-house"></i></div>
-            <div class="icon-box" data-index="1"><i class="fa-solid fa-camera"></i></div>
-            <div class="icon-box" data-index="2"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-            <div class="icon-box" data-index="3"><i class="fa-solid fa-flask"></i></div>
+    <nav class="tab-dock" aria-label="Liquid glass bottom navigation">
+        <div class="liquid-tab" id="tabShell">
+            <canvas id="glass" aria-hidden="true"></canvas>
+            <div class="tab-border" aria-hidden="true"></div>
+            <div class="tab-inner">
+                <button class="tab-button is-active" type="button" data-tab="Home" data-body="Home" aria-label="Home">
+                    <i class="fa-solid fa-house"></i><span>Home</span>
+                </button>
+                <button class="tab-button" type="button" data-tab="Camera" data-body="Camera" aria-label="Camera">
+                    <i class="fa-solid fa-camera"></i><span>Camera</span>
+                </button>
+                <button class="tab-button" type="button" data-tab="Tools" data-body="Tools" aria-label="Tools">
+                    <i class="fa-solid fa-screwdriver-wrench"></i><span>Tools</span>
+                </button>
+                <button class="tab-button" type="button" data-tab="Lab" data-body="Lab" aria-label="Lab">
+                    <i class="fa-solid fa-flask"></i><span>Lab</span>
+                </button>
+            </div>
         </div>
-    </div>
-
+    </nav>
     <script>
         // 初始化 Lucide 图标
         lucide.createIcons();
 
         // ------------------------------------------------
-        // CONFIGURATION AND STATE (完全复刻你的配置)
-        // ------------------------------------------------
-        const CONFIG = {
-            stiffness: 0.1,    // Spring strength
-            damping: 0.8,      // Damping (friction)
-            scaleRange: 100,   // Icon proximity detection range
-            dragSensitivity: 0.95, // How directly the sphere follows the finger
-            maxLiquidStretch: 0.2,
-            maxLiquidTilt: 10,
-            vibrateDuration: 50 // Haptic feedback duration
-        };
-
-        const state = {
-            isDragging: false,
-            startX: 0,
-            pointerDown: false,
-            lastClientX: 0,
-            dragStartClientX: 0,
-            hasDragged: false,
-            suppressClick: false,
-
-            x: 0,              // Current position of the sphere (left edge)
-            vx: 0,             // Velocity
-            targetX: 0,        // Target snap position
-
-            lastFrameTime: performance.now(),
-            currentIndex: 0,
-            liquidSpeed: 0,
-            animationFrame: null
-        };
-
-        // DOM Elements
-        const bar = document.getElementById('bar');
-        const sphere = document.getElementById('sphere');
-        const liquidTabsCanvas = document.getElementById('liquidTabsCanvas');
-        const icons = document.querySelectorAll('.icon-box');
-        const root = document.documentElement;
-
-        // CSS Variables
-        const style = getComputedStyle(root);
-        const BAR_PADDING_PX = parseFloat(style.getPropertyValue('--bar-padding'));
-        const PILL_WIDTH_NORMAL = parseFloat(style.getPropertyValue('--pill-width'));
-        const PILL_HEIGHT_NORMAL = parseFloat(style.getPropertyValue('--pill-height'));
-        const SPHERE_SIZE_NORMAL = PILL_WIDTH_NORMAL;
-        const NUM_ICONS = icons.length;
-        const liquidTabsRenderer = createLiquidTabsRenderer(liquidTabsCanvas);
-
-        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-        function createLiquidTabsRenderer(canvas) {
-            const gl = canvas?.getContext('webgl', {
-                alpha: true,
-                antialias: true,
-                premultipliedAlpha: false,
-                preserveDrawingBuffer: false
-            });
-            if (!gl) return null;
-
-            const sceneCanvas = document.createElement('canvas');
-            const sceneCtx = sceneCanvas.getContext('2d', { alpha: false });
-            const texture = gl.createTexture();
-            let pixelRatio = 1;
-            let viewportWidth = 1;
-            let viewportHeight = 1;
-            let tabRect = { left: 0, top: 0, width: 1, height: 1 };
-            let sceneDirty = true;
-            let lastBackdropUpload = -Infinity;
-            let cachedHintNodes = [];
-            let lastHintScan = -Infinity;
-            const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
-
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-            const vertexSource = `
-                attribute vec2 a_position;
-                void main() {
-                    gl_Position = vec4(a_position, 0.0, 1.0);
-                }
-            `;
-
-            const fragmentSource = `
-                precision highp float;
-
-                uniform sampler2D u_scene;
-                uniform vec2 u_viewportSize;
-                uniform vec2 u_resolution;
-                uniform vec2 u_tabPos;
-                uniform vec2 u_tabSize;
-                uniform vec2 u_pointer;
-                uniform float u_pixelRatio;
-                uniform float u_time;
-                uniform float u_radius;
-                uniform float u_refractionHeight;
-                uniform float u_refractionAmount;
-                uniform float u_blurRadius;
-                uniform float u_pointerStrength;
-                uniform vec2 u_thumbCenter;
-                uniform vec2 u_thumbSize;
-                uniform float u_thumbVelocity;
-                uniform float u_thumbStrength;
-
-                float sdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
-                    vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
-                    float outside = length(max(cornerCoord, 0.0)) - radius;
-                    float inside = min(max(cornerCoord.x, cornerCoord.y), 0.0);
-                    return outside + inside;
-                }
-
-                vec2 gradSdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
-                    vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
-                    if (cornerCoord.x >= 0.0 || cornerCoord.y >= 0.0) {
-                        vec2 m = max(cornerCoord, 0.0001);
-                        return sign(coord) * normalize(m);
-                    }
-                    float gradX = step(cornerCoord.y, cornerCoord.x);
-                    return sign(coord) * vec2(gradX, 1.0 - gradX);
-                }
-
-                float circleMap(float x) {
-                    x = clamp(x, 0.0, 0.999);
-                    return 1.0 - sqrt(1.0 - x * x);
-                }
-
-                float band(float y, float center, float width) {
-                    return 1.0 - smoothstep(0.0, width, abs(y - center));
-                }
-
-                vec3 saturateColor(vec3 color, float amount) {
-                    float luma = dot(color, vec3(0.213, 0.715, 0.072));
-                    return mix(vec3(luma), color, amount);
-                }
-
-                vec3 mirrorGrade(vec3 color) {
-                    color = (color - 0.5) * 1.28 + 0.5;
-                    return clamp(color, 0.0, 1.0);
-                }
-
-                vec3 sampleScene(vec2 screenCoord, float radius) {
-                    vec2 uv = clamp(screenCoord / u_viewportSize, vec2(0.0), vec2(1.0));
-                    vec2 stepSize = vec2(radius) / u_viewportSize;
-                    vec3 color = vec3(0.0);
-                    color += texture2D(u_scene, uv + stepSize * vec2(-1.50, -0.25)).rgb * 0.055;
-                    color += texture2D(u_scene, uv + stepSize * vec2(-1.00,  0.90)).rgb * 0.070;
-                    color += texture2D(u_scene, uv + stepSize * vec2(-0.70, -1.20)).rgb * 0.075;
-                    color += texture2D(u_scene, uv + stepSize * vec2(-0.25,  0.35)).rgb * 0.105;
-                    color += texture2D(u_scene, uv).rgb * 0.205;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 0.25, -0.45)).rgb * 0.105;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 0.75,  1.20)).rgb * 0.075;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 1.10, -0.85)).rgb * 0.070;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 1.55,  0.25)).rgb * 0.055;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 0.00,  1.65)).rgb * 0.095;
-                    color += texture2D(u_scene, uv + stepSize * vec2( 0.00, -1.65)).rgb * 0.095;
-                    color = saturateColor(color, 1.58);
-                    color = (color - 0.5) * 1.16 + 0.5;
-                    color += 0.045;
-                    return clamp(color, 0.0, 1.0);
-                }
-
-                vec3 sampleAgslDispersion(vec2 refractedCoord, vec2 grad, float displacement, vec2 centeredCoord, vec2 halfSize, float chromatic, float radius) {
-                    float dispersionIntensity = chromatic * 2.35 * ((centeredCoord.x * centeredCoord.y) / max(1.0, halfSize.x * halfSize.y));
-                    vec2 dispersedCoord = grad * displacement * dispersionIntensity;
-                    vec3 color = vec3(0.0);
-                    vec3 red = sampleScene(refractedCoord + dispersedCoord, radius);
-                    color.r += red.r / 3.5;
-                    vec3 orange = sampleScene(refractedCoord + dispersedCoord * (2.0 / 3.0), radius);
-                    color.r += orange.r / 3.5;
-                    color.g += orange.g / 7.0;
-                    vec3 yellow = sampleScene(refractedCoord + dispersedCoord * (1.0 / 3.0), radius);
-                    color.r += yellow.r / 3.5;
-                    color.g += yellow.g / 3.5;
-                    vec3 green = sampleScene(refractedCoord, radius);
-                    color.g += green.g / 3.5;
-                    vec3 cyan = sampleScene(refractedCoord - dispersedCoord * (1.0 / 3.0), radius);
-                    color.g += cyan.g / 3.5;
-                    color.b += cyan.b / 3.0;
-                    vec3 blue = sampleScene(refractedCoord - dispersedCoord * (2.0 / 3.0), radius);
-                    color.b += blue.b / 3.0;
-                    vec3 purple = sampleScene(refractedCoord - dispersedCoord, radius);
-                    color.r += purple.r / 7.0;
-                    color.b += purple.b / 3.0;
-                    return clamp(color, 0.0, 1.0);
-                }
-
-                float defaultHighlight(vec2 grad) {
-                    vec2 normal = normalize(vec2(0.70710678, 0.70710678));
-                    return abs(dot(grad, normal));
-                }
-
-                vec4 over(vec4 dst, vec4 src) {
-                    return src + dst * (1.0 - src.a);
-                }
-
-                void main() {
-                    vec2 local = vec2(gl_FragCoord.x / u_pixelRatio, u_tabSize.y - gl_FragCoord.y / u_pixelRatio);
-                    vec2 halfSize = u_tabSize * 0.5;
-                    vec2 centered = local - halfSize;
-                    float sd = sdRoundedRect(centered, halfSize - vec2(1.0), u_radius);
-                    float mask = 1.0 - smoothstep(0.0, 1.35, sd);
-
-                    if (mask <= 0.002) {
-                        gl_FragColor = vec4(0.0);
-                        return;
-                    }
-
-                    vec2 grad = gradSdRoundedRect(centered, halfSize, min(u_radius * 1.45, min(halfSize.x, halfSize.y)));
-                    vec2 pointerDelta = local - u_pointer;
-                    float pointerField = exp(-dot(pointerDelta, pointerDelta) / 21000.0) * u_pointerStrength;
-                    vec2 pointerNormal = normalize(pointerDelta + vec2(0.001));
-                    grad = normalize(grad + pointerNormal * pointerField * 0.45 + normalize(centered + vec2(0.001)) * 0.06);
-
-                    float insideDistance = max(-sd, 0.0);
-                    float edgeFactor = circleMap(1.0 - insideDistance / u_refractionHeight);
-                    float displacement = edgeFactor * u_refractionAmount;
-                    vec2 screen = u_tabPos + local;
-                    vec2 refracted = screen - grad * displacement;
-                    vec3 color = sampleScene(refracted, u_blurRadius);
-
-                    float highlight = defaultHighlight(grad) * 0.28;
-                    float rim = smoothstep(1.2, 0.0, abs(sd)) * 0.34;
-                    float innerShade = smoothstep(-1.0, 1.0, dot(grad, normalize(vec2(0.0, 1.0)))) * 0.10;
-                    float pointerGlint = pointerField * exp(-abs(sd + 10.0) / 34.0) * 0.22;
-                    float y01 = local.y / max(1.0, u_tabSize.y);
-                    float mirrorZone = smoothstep(0.42, 0.98, y01);
-                    vec2 mirrorCoord = vec2(screen.x + grad.x * displacement * 0.50, u_tabPos.y + u_tabSize.y * (0.18 + (1.0 - y01) * 0.45));
-                    vec3 mirrorColor = mirrorGrade(sampleScene(mirrorCoord, max(2.0, u_blurRadius * 0.28)));
-                    float lowerChrome = band(y01, 0.78, 0.34) * 0.26;
-                    float bottomLine = band(y01, 0.90, 0.045) * 0.48;
-                    float topLine = band(y01, 0.18, 0.035) * 0.28;
-
-                    color = mix(color, mirrorColor, mirrorZone * 0.38);
-                    color = mix(color, vec3(1.0), highlight + rim * 0.20 + pointerGlint + topLine + bottomLine);
-                    color = mix(color, vec3(0.02, 0.07, 0.08), innerShade + mirrorZone * 0.12);
-                    color += rim * vec3(0.42, 0.78, 0.92);
-                    color += lowerChrome * vec3(0.64, 0.88, 1.0);
-                    float alpha = mask * (0.86 + rim * 0.14 + mirrorZone * 0.08);
-
-                    vec2 thumbHalf = u_thumbSize * 0.5;
-                    vec2 thumbCoord = local - u_thumbCenter;
-                    float thumbSd = sdRoundedRect(thumbCoord, thumbHalf - vec2(1.0), thumbHalf.y);
-                    float thumbMask = 1.0 - smoothstep(0.0, 1.25, thumbSd);
-                    float thumbInside = max(-thumbSd, 0.0);
-                    float thumbEdge = circleMap(1.0 - thumbInside / max(1.0, thumbHalf.y * 0.58));
-                    vec2 thumbGrad = gradSdRoundedRect(thumbCoord, thumbHalf, thumbHalf.y);
-                    vec2 flow = vec2(sign(u_thumbVelocity) * min(abs(u_thumbVelocity) * 0.03, 0.55), 0.0);
-                    thumbGrad = normalize(thumbGrad + flow + pointerNormal * pointerField * 0.30 + vec2(0.001));
-
-                    float thumbProgress = clamp(u_thumbStrength, 0.0, 1.0);
-                    float thumbDisplacement = thumbProgress * 16.0 + thumbEdge * (22.0 * thumbProgress + abs(u_thumbVelocity) * 0.36);
-                    vec2 thumbRefracted = screen - thumbGrad * thumbDisplacement;
-                    vec3 thumbBase = sampleScene(thumbRefracted, max(3.0, u_blurRadius * 0.45));
-                    vec3 thumbDispersion = sampleAgslDispersion(thumbRefracted, thumbGrad, thumbDisplacement, thumbCoord, thumbHalf, thumbProgress, max(3.0, u_blurRadius * 0.42));
-                    vec3 thumbColor = mix(thumbBase, thumbDispersion, thumbProgress);
-
-                    float thumbRim = smoothstep(1.0, 0.0, abs(thumbSd)) * 0.42;
-                    float thumbHighlight = defaultHighlight(thumbGrad) * 0.50 * thumbProgress;
-                    float thumbInnerShadow = smoothstep(-0.15, 1.0, dot(thumbGrad, normalize(vec2(0.0, 1.0)))) * 0.18 * thumbProgress;
-                    float thumbVelocityGlint = min(abs(u_thumbVelocity) * 0.035, 0.20) * thumbProgress;
-                    float thumbY01 = (thumbCoord.y + thumbHalf.y) / max(1.0, u_thumbSize.y);
-                    float thumbMirrorZone = smoothstep(0.38, 1.0, thumbY01) * thumbProgress;
-                    vec2 thumbMirrorCoord = vec2(screen.x + thumbGrad.x * thumbDisplacement * 0.65, screen.y - thumbCoord.y * 0.72 + thumbGrad.y * 5.0);
-                    vec3 thumbMirrorColor = mirrorGrade(sampleScene(thumbMirrorCoord, max(2.0, u_blurRadius * 0.22)));
-                    float thumbBottomLine = band(thumbY01, 0.88, 0.052) * 0.62 * thumbProgress;
-                    float thumbTopLine = band(thumbY01, 0.14, 0.045) * 0.42 * thumbProgress;
-                    float thumbCornerColor = pow(thumbEdge, 2.2) * thumbProgress * 0.32;
-
-                    thumbColor = mix(thumbColor, thumbMirrorColor, thumbMirrorZone * 0.46);
-                    thumbColor = mix(thumbColor, vec3(1.0), thumbHighlight + thumbRim * 0.22 + thumbVelocityGlint + thumbTopLine + thumbBottomLine);
-                    thumbColor = mix(thumbColor, vec3(0.0, 0.0, 0.0), thumbInnerShadow + thumbMirrorZone * 0.10);
-                    thumbColor += thumbRim * vec3(0.70, 0.92, 1.0) * thumbProgress;
-                    thumbColor += thumbCornerColor * vec3(1.0, 0.32, 0.12);
-                    float thumbAlpha = thumbMask * (0.54 + thumbProgress * 0.36 + thumbRim * 0.18 + thumbMirrorZone * 0.08);
-                    color = mix(color, thumbColor, clamp(thumbAlpha, 0.0, 0.92));
-                    alpha = max(alpha, thumbMask * (0.78 + thumbRim * 0.12));
-
-                    gl_FragColor = vec4(clamp(color, 0.0, 1.0), alpha);
-                }
-            `;
-
-            function compileShader(type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.warn(gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                return shader;
-            }
-
-            const vertex = compileShader(gl.VERTEX_SHADER, vertexSource);
-            const fragment = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
-            if (!vertex || !fragment) return null;
-
-            const program = gl.createProgram();
-            gl.attachShader(program, vertex);
-            gl.attachShader(program, fragment);
-            gl.linkProgram(program);
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.warn(gl.getProgramInfoLog(program));
-                return null;
-            }
-
-            const vertices = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertices);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-
-            const loc = {
-                position: gl.getAttribLocation(program, 'a_position'),
-                scene: gl.getUniformLocation(program, 'u_scene'),
-                viewportSize: gl.getUniformLocation(program, 'u_viewportSize'),
-                resolution: gl.getUniformLocation(program, 'u_resolution'),
-                tabPos: gl.getUniformLocation(program, 'u_tabPos'),
-                tabSize: gl.getUniformLocation(program, 'u_tabSize'),
-                pointer: gl.getUniformLocation(program, 'u_pointer'),
-                pixelRatio: gl.getUniformLocation(program, 'u_pixelRatio'),
-                time: gl.getUniformLocation(program, 'u_time'),
-                radius: gl.getUniformLocation(program, 'u_radius'),
-                refractionHeight: gl.getUniformLocation(program, 'u_refractionHeight'),
-                refractionAmount: gl.getUniformLocation(program, 'u_refractionAmount'),
-                blurRadius: gl.getUniformLocation(program, 'u_blurRadius'),
-                pointerStrength: gl.getUniformLocation(program, 'u_pointerStrength'),
-                thumbCenter: gl.getUniformLocation(program, 'u_thumbCenter'),
-                thumbSize: gl.getUniformLocation(program, 'u_thumbSize'),
-                thumbVelocity: gl.getUniformLocation(program, 'u_thumbVelocity'),
-                thumbStrength: gl.getUniformLocation(program, 'u_thumbStrength')
-            };
-
-            function resize() {
-                pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
-                viewportWidth = window.innerWidth || 1;
-                viewportHeight = window.innerHeight || 1;
-                tabRect = bar.getBoundingClientRect();
-                const canvasWidth = Math.max(1, Math.round(tabRect.width * pixelRatio));
-                const canvasHeight = Math.max(1, Math.round(tabRect.height * pixelRatio));
-                const sceneWidth = Math.max(1, Math.round(viewportWidth * pixelRatio));
-                const sceneHeight = Math.max(1, Math.round(viewportHeight * pixelRatio));
-                if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-                    canvas.width = canvasWidth;
-                    canvas.height = canvasHeight;
-                    canvas.style.width = tabRect.width + 'px';
-                    canvas.style.height = tabRect.height + 'px';
-                }
-                if (sceneCanvas.width !== sceneWidth || sceneCanvas.height !== sceneHeight) {
-                    sceneCanvas.width = sceneWidth;
-                    sceneCanvas.height = sceneHeight;
-                    sceneDirty = true;
-                }
-                sceneCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-                pointer.targetX = tabRect.width * 0.5;
-                pointer.targetY = tabRect.height * 0.5;
-                gl.viewport(0, 0, canvas.width, canvas.height);
-            }
-
-            function roundedRect(ctx, x, y, w, h, r) {
-                const radius = Math.min(r, w * 0.5, h * 0.5);
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.arcTo(x + w, y, x + w, y + h, radius);
-                ctx.arcTo(x + w, y + h, x, y + h, radius);
-                ctx.arcTo(x, y + h, x, y, radius);
-                ctx.arcTo(x, y, x + w, y, radius);
-                ctx.closePath();
-            }
-
-            function drawDomHints(ctx, time) {
-                const selectors = '.page.active .hero-text, .page.active h1, .page.active h2, .page.active p, .page.active .card-border, .page.active .lab-panel, .page.active .lab-card, .page.active button, .page.active img';
-                if (sceneDirty || time - lastHintScan > 320) {
-                    cachedHintNodes = Array.from(document.querySelectorAll(selectors)).slice(0, 24);
-                    lastHintScan = time;
-                }
-                const nodes = cachedHintNodes;
-                nodes.forEach((node) => {
-                    const rect = node.getBoundingClientRect();
-                    if (rect.bottom < 0 || rect.top > viewportHeight || rect.right < 0 || rect.left > viewportWidth) return;
-                    const tag = node.tagName.toLowerCase();
-                    const isText = tag === 'h1' || tag === 'h2' || tag === 'p' || node.classList.contains('hero-text');
-                    ctx.save();
-                    if (isText) {
-                        const text = (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 34);
-                        if (text) {
-                            const size = Math.max(12, Math.min(rect.height * 0.72, node.classList.contains('hero-text') ? 92 : 28));
-                            ctx.globalAlpha = node.classList.contains('hero-text') ? 0.10 : 0.16;
-                            ctx.fillStyle = '#101820';
-                            ctx.font = `800 ${size}px Inter, Arial, sans-serif`;
-                            ctx.fillText(text, rect.left, rect.top + size);
-                        }
-                    } else {
-                        ctx.globalAlpha = tag === 'img' ? 0.20 : 0.13;
-                        ctx.fillStyle = tag === 'button' ? '#111820' : '#ffffff';
-                        ctx.strokeStyle = 'rgba(20, 33, 47, 0.20)';
-                        roundedRect(ctx, rect.left, rect.top, Math.max(8, rect.width), Math.max(8, rect.height), Math.min(18, rect.height * 0.2));
-                        ctx.fill();
-                        ctx.stroke();
-                    }
-                    ctx.restore();
-                });
-            }
-
-            function drawBackdropTexture(time, velocity) {
-                const uploadInterval = state.isDragging || Math.abs(velocity || 0) > 0.45 ? 90 : 220;
-                if (!sceneDirty && time - lastBackdropUpload < uploadInterval) return;
-                lastBackdropUpload = time;
-                const ctx = sceneCtx;
-                const w = viewportWidth;
-                const h = viewportHeight;
-                ctx.clearRect(0, 0, w, h);
-
-                const base = ctx.createLinearGradient(0, 0, w, h);
-                base.addColorStop(0.00, '#f7f8f4');
-                base.addColorStop(0.34, '#edf5fb');
-                base.addColorStop(0.62, '#fbf2e6');
-                base.addColorStop(1.00, '#dcecfb');
-                ctx.fillStyle = base;
-                ctx.fillRect(0, 0, w, h);
-
-                drawDomHints(ctx, time);
-
-                ctx.save();
-                ctx.globalAlpha = 0.74;
-                ctx.lineCap = 'round';
-                const t = time * 0.00042;
-                const ribbons = [
-                    ['#0275ff', 0.10, 0.84, 1.05, 0.30, 58, 0.0],
-                    ['#5ed1e8', -0.08, 0.70, 0.86, 0.92, 42, 1.6],
-                    ['#ffffff', 0.03, 0.91, 1.12, 0.52, 26, 3.1],
-                    ['#153fe4', -0.14, 0.98, 1.02, 0.46, 35, 2.4]
-                ];
-                for (const [color, sx, sy, ex, ey, width, phase] of ribbons) {
-                    const drift = Math.sin(t + phase) * 26;
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = width;
-                    ctx.beginPath();
-                    ctx.moveTo(w * sx - 80, h * sy + drift);
-                    ctx.bezierCurveTo(w * 0.26, h * (sy - 0.30) - drift, w * 0.60, h * (ey + 0.35) + drift, w * ex + 80, h * ey - drift);
-                    ctx.stroke();
-                }
-                ctx.restore();
-
-                ctx.save();
-                ctx.globalCompositeOperation = 'screen';
-                ctx.globalAlpha = 0.34;
-                const glow = ctx.createRadialGradient(w * 0.50, h - 66, 10, w * 0.50, h - 66, Math.max(160, w * 0.34));
-                glow.addColorStop(0, '#ffffff');
-                glow.addColorStop(0.42, '#9edcff');
-                glow.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = glow;
-                ctx.fillRect(0, 0, w, h);
-                ctx.restore();
-
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sceneCanvas);
-                sceneDirty = false;
-            }
-
-            resize();
-
-            return {
-                resize,
-                invalidate() {
-                    sceneDirty = true;
-                    lastHintScan = -Infinity;
-                },
-                render(time, velocity) {
-                    resize();
-                    drawBackdropTexture(time, velocity);
-                    pointer.x += (pointer.targetX - pointer.x) * 0.14;
-                    pointer.y += (pointer.targetY - pointer.y) * 0.14;
-                    pointer.targetStrength = state.isDragging ? 1.0 : clamp(Math.abs(velocity || 0) / 8, 0.16, 0.42);
-                    pointer.strength += (pointer.targetStrength - pointer.strength) * 0.12;
-
-                    const speed = clamp(Math.abs(velocity || 0) / 11, 0, 1);
-                    const thumbW = Math.max(PILL_WIDTH_NORMAL, sphere.offsetWidth || PILL_WIDTH_NORMAL);
-                    const thumbH = Math.max(PILL_HEIGHT_NORMAL, sphere.offsetHeight || PILL_HEIGHT_NORMAL);
-                    const stretch = state.isDragging ? Math.min(34, Math.abs(velocity || 0) * 3.2) : Math.min(24, Math.abs(velocity || 0) * 2.4);
-                    const thumbCenterX = state.x + thumbW * 0.5;
-                    const thumbStrength = state.isDragging ? 0.82 : 0.48 + speed * 0.30;
-
-                    gl.viewport(0, 0, canvas.width, canvas.height);
-                    gl.clearColor(0, 0, 0, 0);
-                    gl.clear(gl.COLOR_BUFFER_BIT);
-                    gl.enable(gl.BLEND);
-                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-                    gl.useProgram(program);
-                    gl.bindBuffer(gl.ARRAY_BUFFER, vertices);
-                    gl.enableVertexAttribArray(loc.position);
-                    gl.vertexAttribPointer(loc.position, 2, gl.FLOAT, false, 0, 0);
-                    gl.activeTexture(gl.TEXTURE0);
-                    gl.bindTexture(gl.TEXTURE_2D, texture);
-                    gl.uniform1i(loc.scene, 0);
-                    gl.uniform2f(loc.viewportSize, viewportWidth, viewportHeight);
-                    gl.uniform2f(loc.resolution, canvas.width, canvas.height);
-                    gl.uniform2f(loc.tabPos, tabRect.left, tabRect.top);
-                    gl.uniform2f(loc.tabSize, tabRect.width, tabRect.height);
-                    gl.uniform2f(loc.pointer, pointer.x, pointer.y);
-                    gl.uniform1f(loc.pixelRatio, pixelRatio);
-                    gl.uniform1f(loc.time, time * 0.001);
-                    gl.uniform1f(loc.radius, tabRect.height * 0.5);
-                    gl.uniform1f(loc.refractionHeight, tabRect.height * 0.38);
-                    gl.uniform1f(loc.refractionAmount, window.innerWidth < 560 ? 20 : 26);
-                    gl.uniform1f(loc.blurRadius, window.innerWidth < 560 ? 6 : 7);
-                    gl.uniform1f(loc.pointerStrength, pointer.strength);
-                    gl.uniform2f(loc.thumbCenter, thumbCenterX, tabRect.height * 0.5);
-                    gl.uniform2f(loc.thumbSize, thumbW + stretch, thumbH);
-                    gl.uniform1f(loc.thumbVelocity, velocity || 0);
-                    gl.uniform1f(loc.thumbStrength, thumbStrength);
-                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                }
-            };
-        }
-
-        // ------------------------------------------------
-        // INITIALIZATION
+        // LIQUID GLASS BOTTOM TAB (ported from provided reference)
         // ------------------------------------------------
         function init() {
-            // Set initial sphere size based on CSS variable
-            sphere.style.width = `${PILL_WIDTH_NORMAL}px`;
-            sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
+            initLiquidGlassBottomTab();
 
-            // Start at the first icon
-            state.currentIndex = 0;
-            snapToIcon(icons[state.currentIndex], false); // false = no animation on init
-
-            // Initial positioning
-            state.x = state.targetX;
-
-            updateSphereVisual();
-            icons[state.currentIndex].classList.add('active');
-
-            state.animationFrame = requestAnimationFrame(physicsLoop);
-
-            // 入场动画
-            gsap.from(".prism-nav-wrapper", { y: 100, duration: 1, ease: "power4.out", delay: 0.5 });
+            gsap.from(".tab-dock", { y: 100, duration: 1, ease: "power4.out", delay: 0.5 });
             gsap.from(".hero-text", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 });
 
             initLabEditor();
         }
 
-        // ------------------------------------------------
-        // PAGE SWITCHING LOGIC (GSAP Integration)
-        // ------------------------------------------------
         function switchPageContent(index) {
             const currentActive = document.querySelector('.page.active');
             const nextActive = document.getElementById(`page-${index}`);
+            if (!nextActive || currentActive === nextActive) return;
 
-            if (currentActive === nextActive) return;
-            if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
-
-            // Simple GSAP transition
             if (currentActive) {
                 gsap.to(currentActive, {
                     opacity: 0,
@@ -1903,7 +1513,6 @@
                     onComplete: () => {
                         currentActive.classList.remove('active');
                         nextActive.classList.add('active');
-                        if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                         gsap.fromTo(nextActive,
                             { opacity: 0, y: 10 },
                             {
@@ -1911,11 +1520,7 @@
                                 y: 0,
                                 duration: 0.4,
                                 onStart: () => {
-                                    if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                                     if (index === 3) animateLabIn();
-                                },
-                                onComplete: () => {
-                                    if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                                 }
                             }
                         );
@@ -1923,7 +1528,6 @@
                 });
             } else {
                 nextActive.classList.add('active');
-                if (liquidTabsRenderer) liquidTabsRenderer.invalidate();
                 gsap.set(nextActive, { opacity: 1 });
                 if (index === 3) animateLabIn();
             }
@@ -1938,166 +1542,863 @@
             );
         }
 
-        // ------------------------------------------------
-        // GEOMETRY CALCULATION (Center Fix)
-        // ------------------------------------------------
-        function snapToIcon(iconElement, shouldAnimatePage = true) {
-            const iconIndex = parseInt(iconElement.getAttribute('data-index'));
-            const barInnerWidth = bar.offsetWidth - (BAR_PADDING_PX * 2);
-
-            // Each icon-box takes an equal width
-            const iconBoxWidth = barInnerWidth / NUM_ICONS;
-
-            // 1. Calculate Icon Center point
-            const centerRelToInnerBar = (iconIndex * iconBoxWidth) + (iconBoxWidth / 2);
-
-            // 2. Calculate Sphere Left Edge Target Position
-            state.targetX = BAR_PADDING_PX + centerRelToInnerBar - (PILL_WIDTH_NORMAL / 2);
-
-            // Trigger Page Switch if changed
-            if (state.currentIndex !== iconIndex && shouldAnimatePage) {
-                switchPageContent(iconIndex);
+        function initLiquidGlassBottomTab() {
+            const scene = document.createElement("canvas");
+            const sceneCtx = scene.getContext("2d", { alpha: false });
+            const glass = document.getElementById("glass");
+            const tabShell = document.getElementById("tabShell");
+            const readoutTitle = { textContent: "" };
+            const readoutBody = { textContent: "" };
+            const tabValue = { textContent: "" };
+            const blurValue = { textContent: "" };
+            const refractionValue = { textContent: "" };
+            const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
+            if (window.lucide) {
+              window.lucide.createIcons();
             }
-            state.currentIndex = iconIndex;
-        }
 
-        // ------------------------------------------------
-        // CORE PHYSICS AND ANIMATION LOOP (复刻)
-        // ------------------------------------------------
-        function physicsLoop(currentTime) {
-            const deltaTime = currentTime - state.lastFrameTime;
-            state.lastFrameTime = currentTime;
+            const vertexShaderSource = `
+              attribute vec2 a_position;
 
-            let currentXBeforeUpdate = state.x;
-            const currentSphereWidth = sphere.offsetWidth;
+              void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+              }
+            `;
 
-            if (state.isDragging) {
-                // DRAGGING STATE
-                const barRect = bar.getBoundingClientRect();
-                const pointerXRel = state.startX - barRect.left;
+            const fragmentShaderSource = `
+              precision highp float;
 
-                // Calculate new position based on pointer
-                const maxRight = bar.offsetWidth - currentSphereWidth;
-                let newX = Math.min(Math.max(0, pointerXRel - (currentSphereWidth / 2)), maxRight);
+              uniform sampler2D u_scene;
+              uniform vec2 u_viewportSize;
+              uniform vec2 u_tabPos;
+              uniform vec2 u_tabSize;
+              uniform vec2 u_pointer;
+              uniform float u_pixelRatio;
+              uniform float u_time;
+              uniform float u_radius;
+              uniform float u_refractionHeight;
+              uniform float u_refractionAmount;
+              uniform float u_blurRadius;
+              uniform float u_pointerStrength;
+              uniform float u_glassPadding;
+              uniform vec2 u_thumbCenter;
+              uniform vec2 u_thumbSize;
+              uniform float u_thumbVelocity;
+              uniform float u_thumbStrength;
 
-                // Smooth follow
-                state.x += (newX - state.x) * CONFIG.dragSensitivity;
+              float sdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
+                vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
+                float outside = length(max(cornerCoord, 0.0)) - radius;
+                float inside = min(max(cornerCoord.x, cornerCoord.y), 0.0);
+                return outside + inside;
+              }
 
-            } else {
-                // SNAPPING STATE
-                const dist = state.targetX - state.x;
-                const force = dist * CONFIG.stiffness;
-
-                state.vx = (state.vx + force) * CONFIG.damping;
-                state.x += state.vx;
-
-                // Stop condition
-                if (Math.abs(dist) < 0.1 && Math.abs(state.vx) < 0.1) {
-                    state.x = state.targetX;
-                    state.vx = 0;
+              vec2 gradSdRoundedRect(vec2 coord, vec2 halfSize, float radius) {
+                vec2 cornerCoord = abs(coord) - (halfSize - vec2(radius));
+                if (cornerCoord.x >= 0.0 || cornerCoord.y >= 0.0) {
+                  return sign(coord) * normalize(max(cornerCoord, 0.0001));
                 }
-            }
+                float gradX = step(cornerCoord.y, cornerCoord.x);
+                return sign(coord) * vec2(gradX, 1.0 - gradX);
+              }
 
-            // Calculate instantaneous velocity for refractive drag details.
-            const safeDeltaTime = Math.max(deltaTime || 16, 8);
-            const currentSpeed = (state.x - currentXBeforeUpdate) / safeDeltaTime * 16;
-            updateChromaticAberration(currentSpeed);
-            if (liquidTabsRenderer) liquidTabsRenderer.render(currentTime, currentSpeed);
+              float circleMap(float x) {
+                x = clamp(x, 0.0, 0.999);
+                return 1.0 - sqrt(1.0 - x * x);
+              }
 
-            // Apply visual updates and check proximity
-            updateSphereVisual();
-            detectActiveIcon();
+              vec3 saturateColor(vec3 color, float amount) {
+                float luma = dot(color, vec3(0.213, 0.715, 0.072));
+                return mix(vec3(luma), color, amount);
+              }
 
-            state.animationFrame = requestAnimationFrame(physicsLoop);
-        }
+              vec3 sampleScene(vec2 screenCoord, float radius) {
+                vec2 uv = screenCoord / u_viewportSize;
+                vec2 stepSize = vec2(radius) / u_viewportSize;
 
-        // ------------------------------------------------
-        // VISUAL AND STATE UPDATES
-        // ------------------------------------------------
-        function updateChromaticAberration(speed) {
-            const absSpeed = Math.abs(speed);
-            const intensity = clamp(absSpeed / 11, 0, 1);
-            const direction = speed === 0 ? 0 : Math.sign(speed);
-            const aberrationShift = clamp(-speed * 0.42, -7, 7);
+                vec3 color = vec3(0.0);
+                color += texture2D(u_scene, uv + stepSize * vec2(-1.50, -0.25)).rgb * 0.055;
+                color += texture2D(u_scene, uv + stepSize * vec2(-1.00,  0.90)).rgb * 0.070;
+                color += texture2D(u_scene, uv + stepSize * vec2(-0.70, -1.20)).rgb * 0.075;
+                color += texture2D(u_scene, uv + stepSize * vec2(-0.25,  0.35)).rgb * 0.105;
+                color += texture2D(u_scene, uv).rgb * 0.205;
+                color += texture2D(u_scene, uv + stepSize * vec2( 0.25, -0.45)).rgb * 0.105;
+                color += texture2D(u_scene, uv + stepSize * vec2( 0.75,  1.20)).rgb * 0.075;
+                color += texture2D(u_scene, uv + stepSize * vec2( 1.10, -0.85)).rgb * 0.070;
+                color += texture2D(u_scene, uv + stepSize * vec2( 1.55,  0.25)).rgb * 0.055;
+                color += texture2D(u_scene, uv + stepSize * vec2( 0.00,  1.65)).rgb * 0.095;
+                color += texture2D(u_scene, uv + stepSize * vec2( 0.00, -1.65)).rgb * 0.095;
 
-            state.liquidSpeed = intensity;
-            root.style.setProperty('--aberration-x', `${aberrationShift.toFixed(2)}px`);
-            root.style.setProperty('--aberration-opacity', (intensity * 0.92).toFixed(3));
-            root.style.setProperty('--liquid-speed', intensity.toFixed(3));
-            root.style.setProperty('--liquid-stretch', (1 + intensity * CONFIG.maxLiquidStretch).toFixed(3));
-            root.style.setProperty('--liquid-squash', (1 - intensity * 0.075).toFixed(3));
-            root.style.setProperty('--liquid-tilt', `${(direction * intensity * CONFIG.maxLiquidTilt).toFixed(2)}deg`);
-            const edge = 0.42 + intensity * 0.58;
-            root.style.setProperty('--liquid-edge', edge.toFixed(3));
-            root.style.setProperty('--liquid-edge-blur', `${(11 + edge * 12).toFixed(2)}px`);
-            root.style.setProperty('--liquid-edge-ring', `${(1 + edge).toFixed(2)}px`);
-            root.style.setProperty('--liquid-caustic-opacity', (0.28 + intensity * 0.34).toFixed(3));
-            root.style.setProperty('--liquid-shadow-x', `${(aberrationShift * -0.15).toFixed(2)}px`);
-            root.style.setProperty('--liquid-caustic-x', `${(aberrationShift * -0.16).toFixed(2)}px`);
-            root.style.setProperty('--liquid-blue-shift', `${(aberrationShift * -1).toFixed(2)}px`);
-            root.style.setProperty('--liquid-drift', `${clamp(speed * -1.9, -24, 24).toFixed(2)}px`);
-            root.style.setProperty('--liquid-glare-x', `${clamp(32 - direction * intensity * 18, 16, 54).toFixed(1)}%`);
-        }
+                color = saturateColor(color, 1.58);
+                color = (color - 0.5) * 1.16 + 0.5;
+                color += 0.045;
+                return clamp(color, 0.0, 1.0);
+              }
 
-        function updateSphereVisual() {
-            const sphereWidth = sphere.offsetWidth || SPHERE_SIZE_NORMAL;
-            const sphereCenter = state.x + (sphereWidth / 2);
-            root.style.setProperty('--nav-active-center', `${sphereCenter.toFixed(2)}px`);
+              vec3 sampleAgslDispersion(vec2 refractedCoord, vec2 grad, float displacement, vec2 centeredCoord, vec2 halfSize, float chromatic, float radius) {
+                float dispersionIntensity = chromatic * 2.35 * ((centeredCoord.x * centeredCoord.y) / max(1.0, halfSize.x * halfSize.y));
+                vec2 dispersedCoord = grad * displacement * dispersionIntensity;
 
-            // Update position with velocity-driven liquid deformation.
-            sphere.style.transform = `translate(${state.x}px, -50%) scale(var(--liquid-stretch), var(--liquid-squash)) rotate(var(--liquid-tilt))`;
+                vec3 color = vec3(0.0);
+                vec3 red = sampleScene(refractedCoord + dispersedCoord, radius);
+                color.r += red.r / 3.5;
 
-            // Update size and cursor
-            if (state.isDragging) {
-                const stretch = 1 + (state.liquidSpeed || 0) * 0.08;
-                sphere.style.width = `${PILL_WIDTH_NORMAL * stretch}px`;
-                sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
-                sphere.style.cursor = 'grabbing';
-            } else {
-                sphere.style.width = `${PILL_WIDTH_NORMAL}px`;
-                sphere.style.height = `${PILL_HEIGHT_NORMAL}px`;
-                sphere.style.cursor = 'grab';
-            }
-        }
+                vec3 orange = sampleScene(refractedCoord + dispersedCoord * (2.0 / 3.0), radius);
+                color.r += orange.r / 3.5;
+                color.g += orange.g / 7.0;
 
-        function detectActiveIcon() {
-            const sphereCenter = state.x + (sphere.offsetWidth / 2);
-            let nearestIndex = -1;
-            let minDist = Infinity;
+                vec3 yellow = sampleScene(refractedCoord + dispersedCoord * (1.0 / 3.0), radius);
+                color.r += yellow.r / 3.5;
+                color.g += yellow.g / 3.5;
 
-            const iconBoxWidth = (bar.offsetWidth - (BAR_PADDING_PX * 2)) / NUM_ICONS;
+                vec3 green = sampleScene(refractedCoord, radius);
+                color.g += green.g / 3.5;
 
-            icons.forEach((icon, index) => {
-                const iconCenter = BAR_PADDING_PX + (index * iconBoxWidth) + (iconBoxWidth / 2);
-                const dist = Math.abs(sphereCenter - iconCenter);
+                vec3 cyan = sampleScene(refractedCoord - dispersedCoord * (1.0 / 3.0), radius);
+                color.g += cyan.g / 3.5;
+                color.b += cyan.b / 3.0;
 
-                // Icon Magnification
-                let scale = 1;
-                if (dist < CONFIG.scaleRange) {
-                    const ratio = 1 - (dist / CONFIG.scaleRange);
-                    scale = 1 + (ratio * 0.4);
+                vec3 blue = sampleScene(refractedCoord - dispersedCoord * (2.0 / 3.0), radius);
+                color.b += blue.b / 3.0;
 
-                    if (ratio > 0.8) {
-                         if (dist < minDist) {
-                            minDist = dist;
-                            nearestIndex = index;
-                        }
-                    }
+                vec3 purple = sampleScene(refractedCoord - dispersedCoord, radius);
+                color.r += purple.r / 7.0;
+                color.b += purple.b / 3.0;
+
+                return clamp(color, 0.0, 1.0);
+              }
+
+              float defaultHighlight(vec2 grad) {
+                vec2 normal = normalize(vec2(0.70710678, 0.70710678));
+                return abs(dot(grad, normal));
+              }
+              vec3 mirrorGrade(vec3 color) {
+                color = (color - 0.5) * 1.28 + 0.5;
+                return clamp(color, 0.0, 1.0);
+              }
+
+              float band(float y, float center, float width) {
+                return 1.0 - smoothstep(0.0, width, abs(y - center));
+              }
+              float edgeCusp(float edge) {
+                edge = clamp(edge, 0.0, 1.0);
+                return edge * edge * (3.0 - 2.0 * edge);
+              }
+
+              vec3 spectralPrism(vec2 baseCoord, vec2 normal, vec2 tangent, float displacement, float edge, float chroma, float radius) {
+                float edgePower = edgeCusp(edge);
+                float wave = sin(dot(baseCoord, vec2(0.021, 0.037)) + u_time * 2.1) * 0.5 + 0.5;
+                float split = displacement * chroma * (0.36 + edgePower * 2.35);
+                vec2 axis = normal * split + tangent * split * (wave - 0.5) * 0.46;
+
+                vec3 color = vec3(0.0);
+                vec3 r0 = sampleScene(baseCoord + axis * 1.55, radius * 0.76);
+                vec3 o0 = sampleScene(baseCoord + axis * 0.98, radius * 0.82);
+                vec3 y0 = sampleScene(baseCoord + axis * 0.48, radius * 0.88);
+                vec3 g0 = sampleScene(baseCoord, radius);
+                vec3 c0 = sampleScene(baseCoord - axis * 0.42, radius * 0.88);
+                vec3 b0 = sampleScene(baseCoord - axis * 0.96, radius * 0.82);
+                vec3 p0 = sampleScene(baseCoord - axis * 1.62, radius * 0.76);
+
+                color.r += r0.r * 0.30 + o0.r * 0.24 + y0.r * 0.16 + p0.r * 0.08;
+                color.g += o0.g * 0.10 + y0.g * 0.22 + g0.g * 0.30 + c0.g * 0.22;
+                color.b += c0.b * 0.18 + b0.b * 0.30 + p0.b * 0.30;
+                color += g0 * 0.18;
+                return clamp(saturateColor(color, 1.38 + edgePower * 0.28), 0.0, 1.0);
+              }
+
+              vec3 mirrorWarp(vec2 screen, vec2 localCoord, vec2 halfSize, vec2 normal, float displacement, float edge, float press, float velocity, float radius) {
+                vec2 tangent = vec2(-normal.y, normal.x);
+                vec2 unit = localCoord / max(vec2(1.0), halfSize);
+                float edgePower = edgeCusp(edge);
+                float verticalBias = smoothstep(-0.8, 1.0, unit.y);
+                float horizontalBias = smoothstep(0.10, 1.0, abs(unit.x));
+                float waveA = sin(dot(localCoord, vec2(0.072, 0.026)) + u_time * 2.65 + velocity * 0.055);
+                float waveB = sin(dot(localCoord, vec2(-0.033, 0.091)) - u_time * 1.75);
+                float waveC = sin((unit.x * unit.x - unit.y) * 8.0 + u_time * 1.35);
+
+                vec2 mirrorA = screen;
+                mirrorA += normal * (displacement * (1.25 + edgePower * 3.40) + 10.0 * press);
+                mirrorA += tangent * (waveA * 13.0 + waveB * 7.0 + velocity * 0.38) * (0.20 + edgePower * 0.95);
+                mirrorA.y = mix(mirrorA.y, u_viewportSize.y - mirrorA.y + u_tabPos.y * 0.28, 0.26 + edgePower * 0.36 + verticalBias * 0.12);
+
+                vec2 mirrorB = screen;
+                mirrorB += reflect(normalize(vec2(unit.x * 0.88, unit.y * 0.52) + normal * 0.35), normal) * (42.0 + displacement * 2.1);
+                mirrorB += tangent * (waveB * 18.0 + waveC * 7.5) * edgePower;
+
+                vec3 foldA = sampleScene(mirrorA, max(1.0, radius * (0.25 + edgePower * 0.18)));
+                vec3 foldB = sampleScene(mirrorB, max(1.0, radius * 0.22));
+                vec3 mirror = mix(foldA, foldB, 0.28 + edgePower * 0.44 + horizontalBias * 0.12);
+                mirror = mirrorGrade(mirror);
+
+                float brightStripe = band(unit.y * 0.5 + 0.5 + waveA * 0.035, 0.15, 0.038) * (0.18 + edgePower * 0.54);
+                float darkStripe = band(unit.y * 0.5 + 0.5 + waveB * 0.025, 0.83, 0.055) * (0.12 + edgePower * 0.38);
+                float cyanEdge = pow(edgePower, 1.7) * (0.10 + press * 0.18);
+                mirror = mix(mirror, vec3(1.0), brightStripe);
+                mirror = mix(mirror, vec3(0.0, 0.035, 0.045), darkStripe);
+                mirror += cyanEdge * vec3(0.26, 0.74, 0.92);
+                return clamp(mirror, 0.0, 1.0);
+              }
+
+              vec3 edgeGlassColor(vec2 screen, vec2 localCoord, vec2 halfSize, vec2 normal, float displacement, float edge, float press, float velocity, float radius, float chroma) {
+                vec2 tangent = vec2(-normal.y, normal.x);
+                float edgePower = edgeCusp(edge);
+                vec2 refracted = screen - normal * displacement;
+                refracted += tangent * sin(dot(localCoord, vec2(0.048, 0.031)) + u_time * 1.7) * displacement * edgePower * 0.28;
+
+                vec3 base = sampleScene(refracted, radius);
+                vec3 prism = spectralPrism(refracted, normal, tangent, displacement, edge, chroma, max(1.0, radius * 0.78));
+                vec3 mirror = mirrorWarp(screen, localCoord, halfSize, normal, displacement, edge, press, velocity, max(1.0, radius * 0.32));
+
+                float mirrorMix = clamp(edgePower * (0.42 + press * 0.18) + smoothstep(0.40, 0.98, localCoord.y / max(1.0, halfSize.y * 2.0)) * 0.22, 0.0, 0.86);
+                float prismMix = clamp(0.12 + edgePower * chroma * 0.42, 0.0, 0.62);
+                vec3 color = mix(base, prism, prismMix);
+                color = mix(color, mirror, mirrorMix);
+                return clamp(color, 0.0, 1.0);
+              }
+
+              vec3 dropletNormal(vec2 coord, vec2 halfSize, float press, float velocity) {
+                vec2 p = coord / max(halfSize, vec2(1.0));
+                float squash = 0.82 + press * 0.10;
+                vec2 lensP = vec2(p.x * squash, p.y * (1.08 - press * 0.08));
+                float r2 = dot(lensP, lensP);
+                float z = sqrt(max(0.018, 1.0 - r2 * (0.68 + press * 0.20)));
+                float flow = clamp(velocity * 0.010, -0.28, 0.28);
+                vec3 n = normalize(vec3(
+                  lensP.x * (0.92 + press * 0.52) - flow * (0.30 + press * 0.35),
+                  lensP.y * (1.02 + press * 0.32),
+                  z * (0.92 - press * 0.16)
+                ));
+                return n;
+              }
+
+              vec3 liquidDroplet(vec2 screen, vec2 coord, vec2 halfSize, vec2 sdfNormal, float edge, float press, float velocity, float radius) {
+                vec2 tangent = vec2(-sdfNormal.y, sdfNormal.x);
+                vec2 unit = coord / max(halfSize, vec2(1.0));
+                vec3 n3 = dropletNormal(coord, halfSize, press, velocity);
+                vec2 n2 = normalize(mix(sdfNormal, n3.xy + sdfNormal * 0.18, 0.72 + press * 0.20) + vec2(0.0001));
+                float edgePower = edgeCusp(edge);
+                float centerBulge = smoothstep(1.12, 0.04, dot(unit, unit));
+                float surfaceWave = sin(coord.x * 0.090 + coord.y * 0.044 + u_time * 4.20 + velocity * 0.060) * 0.5 + 0.5;
+                float microWave = sin(coord.x * -0.052 + coord.y * 0.118 - u_time * 3.10) * 0.5 + 0.5;
+
+                float lensAmount = 14.0 + press * 30.0 + edgePower * 34.0 + centerBulge * press * 12.0;
+                vec2 refractBase = screen - n2 * lensAmount;
+                refractBase += tangent * (surfaceWave - 0.5) * (4.0 + press * 9.0 + edgePower * 10.0);
+
+                float chroma = (8.0 + press * 22.0 + edgePower * 30.0) * (0.52 + abs(unit.x * unit.y) * 1.20);
+                vec2 chromaAxis = normalize(n2 * 0.88 + tangent * (surfaceWave - 0.5) * 0.44 + vec2(0.0001)) * chroma;
+
+                vec3 internal;
+                internal.r = sampleScene(refractBase + chromaAxis * 1.18, max(1.0, radius * 0.28)).r;
+                internal.g = sampleScene(refractBase + chromaAxis * 0.08, max(1.0, radius * 0.34)).g;
+                internal.b = sampleScene(refractBase - chromaAxis * 1.32, max(1.0, radius * 0.28)).b;
+                internal = mix(internal, spectralPrism(refractBase, n2, tangent, lensAmount, edge, 1.58 + press * 0.72, max(1.0, radius * 0.28)), 0.30 + press * 0.28 + edgePower * 0.22);
+
+                vec3 viewDir = normalize(vec3(unit * vec2(0.34, 0.46), -1.0));
+                vec3 reflectDir = reflect(viewDir, n3);
+                vec2 mirrorA = screen + reflectDir.xy * (88.0 + press * 84.0 + edgePower * 52.0);
+                mirrorA += tangent * (surfaceWave - 0.5) * (22.0 + press * 22.0);
+                mirrorA.y = mix(mirrorA.y, u_viewportSize.y - mirrorA.y + u_tabPos.y * 0.30, 0.22 + press * 0.18 + edgePower * 0.26);
+
+                vec2 mirrorB = screen + n2 * (34.0 + press * 48.0) + tangent * (microWave - 0.5) * 40.0;
+                vec3 mirror = mix(
+                  mirrorGrade(sampleScene(mirrorA, max(1.0, radius * 0.16))),
+                  mirrorGrade(sampleScene(mirrorB, max(1.0, radius * 0.22))),
+                  0.36 + edgePower * 0.24
+                );
+
+                float fresnel = pow(1.0 - clamp(dot(n3, -viewDir), 0.0, 1.0), 2.15);
+                float rimFresnel = pow(edgePower, 1.55) * (0.24 + press * 0.34);
+                vec3 lightA = normalize(vec3(-0.45, -0.78, 0.92));
+                vec3 lightB = normalize(vec3(0.82, -0.18, 0.58));
+                float specA = pow(max(dot(reflectDir, lightA), 0.0), 86.0) * (1.4 + press * 2.4);
+                float specB = pow(max(dot(reflectDir, lightB), 0.0), 24.0) * (0.20 + press * 0.45);
+                float crescent = band(unit.y * 0.5 + 0.5 + surfaceWave * 0.028, 0.18, 0.055) * (0.16 + press * 0.32);
+                float lowerBite = band(unit.y * 0.5 + 0.5 - microWave * 0.018, 0.84, 0.070) * (0.10 + press * 0.24);
+
+                vec3 color = mix(internal, mirror, clamp(0.18 + fresnel * 0.72 + edgePower * 0.24 + press * 0.12, 0.0, 0.90));
+                color = mix(color, vec3(1.0), specA + specB + crescent);
+                color = mix(color, vec3(0.0, 0.022, 0.028), lowerBite * 0.70);
+                color += fresnel * vec3(0.22, 0.36, 0.44) * (0.30 + press * 0.46);
+                color += rimFresnel * vec3(0.96, 0.26, 0.10);
+                color += rimFresnel * vec3(0.16, 0.56, 1.00) * (0.70 + microWave * 0.55);
+                return clamp(color, 0.0, 1.0);
+              }
+
+              void main() {
+                vec2 local = vec2(
+                  gl_FragCoord.x / u_pixelRatio,
+                  u_tabSize.y + u_glassPadding * 2.0 - gl_FragCoord.y / u_pixelRatio
+                ) - vec2(u_glassPadding);
+
+                vec2 halfSize = u_tabSize * 0.5;
+                vec2 centered = local - halfSize;
+                float sd = sdRoundedRect(centered, halfSize - vec2(1.0), u_radius);
+                float mask = 1.0 - smoothstep(0.0, 1.35, sd);
+
+                vec2 screen = u_tabPos + local;
+                vec2 pointerDelta = local - u_pointer;
+                float pointerField = exp(-dot(pointerDelta, pointerDelta) / 21000.0) * u_pointerStrength;
+                vec2 pointerNormal = normalize(pointerDelta + vec2(0.001));
+
+                vec2 thumbHalf = u_thumbSize * 0.5;
+                vec2 thumbCoord = local - u_thumbCenter;
+                float thumbSd = sdRoundedRect(thumbCoord, thumbHalf - vec2(1.0), thumbHalf.y);
+                float thumbMask = 1.0 - smoothstep(0.0, 1.25, thumbSd);
+
+                if (max(mask, thumbMask) <= 0.002) {
+                  gl_FragColor = vec4(0.0);
+                  return;
                 }
-                icon.querySelector('i').style.transform = `scale(${scale})`;
-                icon.classList.remove('active');
+
+                vec3 color = vec3(0.0);
+                float alpha = 0.0;
+
+                if (mask > 0.002) {
+                  vec2 grad = gradSdRoundedRect(centered, halfSize, min(u_radius * 1.45, min(halfSize.x, halfSize.y)));
+                  grad = normalize(grad + pointerNormal * pointerField * 0.45 + normalize(centered + vec2(0.001)) * 0.06);
+
+                  float insideDistance = max(-sd, 0.0);
+                  float edgeFactor = circleMap(1.0 - insideDistance / u_refractionHeight);
+                  float edgePower = edgeCusp(edgeFactor);
+                  float displacement = edgeFactor * u_refractionAmount;
+
+                  color = edgeGlassColor(screen, centered, halfSize, grad, displacement, edgeFactor, pointerField, u_thumbVelocity, u_blurRadius, 0.72);
+
+                  float highlight = defaultHighlight(grad) * 0.24;
+                  float rim = smoothstep(1.25, 0.0, abs(sd)) * 0.36;
+                  float outerPrismRim = pow(edgePower, 1.55) * 0.18;
+                  float innerShade = smoothstep(-1.0, 1.0, dot(grad, normalize(vec2(0.0, 1.0)))) * 0.10;
+                  float pointerGlint = pointerField * exp(-abs(sd + 10.0) / 34.0) * 0.22;
+
+                  float y01 = local.y / max(1.0, u_tabSize.y);
+                  float lowerChrome = band(y01, 0.78, 0.34) * 0.18;
+                  float bottomLine = band(y01, 0.90, 0.045) * 0.42;
+                  float topLine = band(y01, 0.18, 0.035) * 0.24;
+
+                  color = mix(color, vec3(1.0), highlight + rim * 0.18 + pointerGlint + topLine + bottomLine);
+                  color = mix(color, vec3(0.015, 0.055, 0.064), innerShade + edgePower * 0.035);
+                  color += rim * vec3(0.42, 0.78, 0.92);
+                  color += lowerChrome * vec3(0.64, 0.88, 1.0);
+                  color.r += outerPrismRim * 0.28;
+                  color.b += outerPrismRim * 0.34;
+                  alpha = mask * (0.84 + rim * 0.14 + edgePower * 0.12);
+                }
+
+                if (thumbMask > 0.002) {
+                  float thumbInside = max(-thumbSd, 0.0);
+                  float thumbEdge = circleMap(1.0 - thumbInside / max(1.0, thumbHalf.y * 0.58));
+                  float thumbEdgePower = edgeCusp(thumbEdge);
+                  vec2 thumbGrad = gradSdRoundedRect(thumbCoord, thumbHalf, thumbHalf.y);
+                  vec2 flow = vec2(sign(u_thumbVelocity) * min(abs(u_thumbVelocity) * 0.035, 0.70), 0.0);
+                  thumbGrad = normalize(thumbGrad + flow + pointerNormal * pointerField * 0.34 + vec2(0.001));
+                  float thumbProgress = clamp(u_thumbStrength, 0.0, 1.0);
+                  float velocityPull = min(abs(u_thumbVelocity) * 0.66, 24.0);
+                  float thumbDisplacement = thumbProgress * 20.0 + thumbEdge * (34.0 * thumbProgress + velocityPull);
+
+                  vec3 thumbColor = liquidDroplet(
+                    screen,
+                    thumbCoord,
+                    thumbHalf,
+                    thumbGrad,
+                    thumbEdge,
+                    thumbProgress,
+                    u_thumbVelocity,
+                    max(1.0, u_blurRadius * 0.34)
+                  );
+
+                  float thumbRim = smoothstep(1.0, 0.0, abs(thumbSd)) * (0.44 + thumbProgress * 0.18);
+                  float thumbHighlight = defaultHighlight(thumbGrad) * 0.40 * thumbProgress;
+                  float thumbInnerShadow = smoothstep(-0.15, 1.0, dot(thumbGrad, normalize(vec2(0.0, 1.0)))) * 0.15 * thumbProgress;
+                  float thumbVelocityGlint = min(abs(u_thumbVelocity) * 0.050, 0.34) * thumbProgress;
+                  float thumbY01 = (thumbCoord.y + thumbHalf.y) / max(1.0, u_thumbSize.y);
+                  float thumbTopCrescent = band(thumbY01, 0.13, 0.052) * 0.52 * thumbProgress;
+                  float thumbBottomCrescent = band(thumbY01, 0.88, 0.062) * 0.70 * thumbProgress;
+                  float thumbCornerColor = pow(thumbEdge, 1.85) * thumbProgress * 0.48;
+                  float beadCore = smoothstep(0.95, 0.05, dot(thumbCoord / max(thumbHalf, vec2(1.0)), thumbCoord / max(thumbHalf, vec2(1.0)))) * thumbProgress;
+
+                  thumbColor = mix(thumbColor, vec3(1.0), thumbHighlight + thumbRim * 0.20 + thumbVelocityGlint + thumbTopCrescent + thumbBottomCrescent * 0.55);
+                  thumbColor = mix(thumbColor, vec3(0.0, 0.0, 0.0), thumbInnerShadow + thumbEdgePower * 0.040);
+                  thumbColor += thumbRim * vec3(0.72, 0.94, 1.0) * (0.38 + thumbProgress * 0.72);
+                  thumbColor += thumbCornerColor * vec3(1.0, 0.24, 0.08);
+                  thumbColor += thumbCornerColor * vec3(0.08, 0.38, 1.0) * 0.62;
+                  thumbColor += beadCore * vec3(1.0) * 0.035;
+
+                  float thumbAlpha = thumbMask * (0.46 + thumbProgress * 0.44 + thumbRim * 0.20 + thumbEdgePower * 0.13);
+                  color = mix(color, thumbColor, clamp(thumbAlpha, 0.0, 0.96));
+                  alpha = max(alpha, thumbMask * (0.72 + thumbProgress * 0.14 + thumbRim * 0.12 + thumbEdgePower * 0.09));
+                }
+
+                gl_FragColor = vec4(clamp(color, 0.0, 1.0), clamp(alpha, 0.0, 1.0));
+              }
+            `;
+
+            function createShader(gl, type, source) {
+              const shader = gl.createShader(type);
+              gl.shaderSource(shader, source);
+              gl.compileShader(shader);
+              if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                throw new Error(gl.getShaderInfoLog(shader));
+              }
+              return shader;
+            }
+
+            function createProgram(gl, vertexSource, fragmentSource) {
+              const program = gl.createProgram();
+              gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexSource));
+              gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
+              gl.linkProgram(program);
+              if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                throw new Error(gl.getProgramInfoLog(program));
+              }
+              return program;
+            }
+
+            const gl = glass.getContext("webgl", {
+              alpha: true,
+              antialias: true,
+              premultipliedAlpha: false,
+              preserveDrawingBuffer: false,
             });
 
-            // Apply highlight
-            if (state.isDragging) {
-                 if (nearestIndex !== -1) {
-                    icons[nearestIndex].classList.add('active');
-                 }
-            } else {
-                icons[state.currentIndex].classList.add('active');
-            }
-        }
+            let program;
+            let locations;
+            let sceneTexture;
+            let pixelRatio = 1;
+            let viewportWidth = 1;
+            let viewportHeight = 1;
+            let tabRect = { left: 0, top: 0, width: 1, height: 1 };
+            let glassPadding = 56;
+            const pointer = { x: 360, y: 43, targetX: 360, targetY: 43, strength: 0, targetStrength: 0 };
+            const thumb = {
+              index: 0,
+              center: 0,
+              targetCenter: 0,
+              width: 0,
+              targetWidth: 0,
+              baseWidth: 0,
+              height: 58,
+              targetHeight: 58,
+              baseHeight: 58,
+              velocity: 0,
+              strength: 0,
+              targetStrength: 0.42,
+              dragging: false,
+              moved: false
+            };
 
+            function setupWebGL() {
+              if (!gl) return;
+
+              program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+              gl.useProgram(program);
+
+              const positionBuffer = gl.createBuffer();
+              gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+              gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                -1, -1,
+                 1, -1,
+                -1,  1,
+                -1,  1,
+                 1, -1,
+                 1,  1
+              ]), gl.STATIC_DRAW);
+
+              const positionLocation = gl.getAttribLocation(program, "a_position");
+              gl.enableVertexAttribArray(positionLocation);
+              gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+              sceneTexture = gl.createTexture();
+              gl.bindTexture(gl.TEXTURE_2D, sceneTexture);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+              locations = {
+                scene: gl.getUniformLocation(program, "u_scene"),
+                viewportSize: gl.getUniformLocation(program, "u_viewportSize"),
+                tabPos: gl.getUniformLocation(program, "u_tabPos"),
+                tabSize: gl.getUniformLocation(program, "u_tabSize"),
+                pointer: gl.getUniformLocation(program, "u_pointer"),
+                pixelRatio: gl.getUniformLocation(program, "u_pixelRatio"),
+                time: gl.getUniformLocation(program, "u_time"),
+                radius: gl.getUniformLocation(program, "u_radius"),
+                refractionHeight: gl.getUniformLocation(program, "u_refractionHeight"),
+                refractionAmount: gl.getUniformLocation(program, "u_refractionAmount"),
+                blurRadius: gl.getUniformLocation(program, "u_blurRadius"),
+                pointerStrength: gl.getUniformLocation(program, "u_pointerStrength"),
+                thumbCenter: gl.getUniformLocation(program, "u_thumbCenter"),
+                thumbSize: gl.getUniformLocation(program, "u_thumbSize"),
+                thumbVelocity: gl.getUniformLocation(program, "u_thumbVelocity"),
+                thumbStrength: gl.getUniformLocation(program, "u_thumbStrength"),
+                glassPadding: gl.getUniformLocation(program, "u_glassPadding")
+              };
+
+              gl.uniform1i(locations.scene, 0);
+            }
+
+            function resize() {
+              pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+              viewportWidth = window.innerWidth;
+              viewportHeight = window.innerHeight;
+
+              scene.width = Math.max(1, Math.floor(viewportWidth * pixelRatio));
+              scene.height = Math.max(1, Math.floor(viewportHeight * pixelRatio));
+              scene.style.width = viewportWidth + "px";
+              scene.style.height = viewportHeight + "px";
+              sceneCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+              tabRect = tabShell.getBoundingClientRect();
+              glassPadding = Math.min(64, Math.max(48, tabRect.height * 0.72));
+              glass.width = Math.max(1, Math.floor((tabRect.width + glassPadding * 2) * pixelRatio));
+              glass.height = Math.max(1, Math.floor((tabRect.height + glassPadding * 2) * pixelRatio));
+              glass.style.width = (tabRect.width + glassPadding * 2) + "px";
+              glass.style.height = (tabRect.height + glassPadding * 2) + "px";
+              glass.style.left = -glassPadding + "px";
+              glass.style.top = -glassPadding + "px";
+
+              pointer.targetX = tabRect.width * 0.5;
+              pointer.targetY = tabRect.height * 0.5;
+              syncThumbToIndex(thumb.index, true);
+              if (gl) {
+                gl.viewport(0, 0, glass.width, glass.height);
+              }
+            }
+
+
+            function clamp(value, min, max) {
+              return Math.max(min, Math.min(max, value));
+            }
+
+            function tabMetrics(index) {
+              const button = tabButtons[index] || tabButtons[0];
+              const rect = button.getBoundingClientRect();
+              return {
+                center: rect.left - tabRect.left + rect.width * 0.5,
+                width: Math.max(74, rect.width - 10),
+                height: Math.max(52, rect.height - 6)
+              };
+            }
+
+            function nearestTabIndex(localX) {
+              let bestIndex = 0;
+              let bestDistance = Infinity;
+              tabButtons.forEach((button, index) => {
+                const rect = button.getBoundingClientRect();
+                const center = rect.left - tabRect.left + rect.width * 0.5;
+                const distance = Math.abs(localX - center);
+                if (distance < bestDistance) {
+                  bestDistance = distance;
+                  bestIndex = index;
+                }
+              });
+              return bestIndex;
+            }
+
+            function syncThumbToIndex(index, immediate = false) {
+              const metrics = tabMetrics(index);
+              thumb.index = index;
+              thumb.targetCenter = metrics.center;
+              thumb.baseWidth = metrics.width;
+              thumb.targetWidth = metrics.width;
+              thumb.baseHeight = metrics.height;
+              thumb.targetHeight = metrics.height;
+              thumb.height = metrics.height;
+              if (immediate || thumb.center === 0) {
+                thumb.center = metrics.center;
+                thumb.width = metrics.width;
+                thumb.height = metrics.height;
+                thumb.velocity = 0;
+              }
+            }
+            function roundedPanel(ctx, x, y, w, h, r) {
+              const radius = Math.min(r, w * 0.5, h * 0.5);
+              ctx.beginPath();
+              ctx.moveTo(x + radius, y);
+              ctx.arcTo(x + w, y, x + w, y + h, radius);
+              ctx.arcTo(x + w, y + h, x, y + h, radius);
+              ctx.arcTo(x, y + h, x, y, radius);
+              ctx.arcTo(x, y, x + w, y, radius);
+              ctx.closePath();
+            }
+
+            function drawScene(time) {
+              const ctx = sceneCtx;
+              const w = viewportWidth;
+              const h = viewportHeight;
+              ctx.clearRect(0, 0, w, h);
+
+              const bodyStyle = getComputedStyle(document.body);
+              const bgColor = bodyStyle.backgroundColor && bodyStyle.backgroundColor !== 'rgba(0, 0, 0, 0)'
+                ? bodyStyle.backgroundColor
+                : '#f2f2f0';
+              ctx.fillStyle = bgColor;
+              ctx.fillRect(0, 0, w, h);
+
+              const ambient = ctx.createRadialGradient(w * 0.50, h * 0.92, 8, w * 0.50, h * 0.92, Math.max(220, w * 0.38));
+              ambient.addColorStop(0.00, 'rgba(255,255,255,0.34)');
+              ambient.addColorStop(0.42, 'rgba(210,230,250,0.16)');
+              ambient.addColorStop(1.00, 'rgba(255,255,255,0)');
+              ctx.fillStyle = ambient;
+              ctx.fillRect(0, 0, w, h);
+
+              ctx.save();
+              ctx.globalAlpha = 0.045;
+              ctx.strokeStyle = '#101820';
+              ctx.lineWidth = 1;
+              for (let x = -80; x < w + 140; x += 46) {
+                ctx.beginPath();
+                ctx.moveTo(x + Math.sin(time * 0.00018 + x) * 2, 0);
+                ctx.lineTo(x - 86, h);
+                ctx.stroke();
+              }
+              for (let y = 28; y < h; y += 44) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y + Math.cos(time * 0.00022 + y) * 2);
+                ctx.stroke();
+              }
+              ctx.restore();
+
+              function colorOrFallback(color, fallback) {
+                return color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent' ? color : fallback;
+              }
+
+              function drawRoundedRect(x, y, width, height, radius) {
+                const r = Math.max(0, Math.min(radius, width * 0.5, height * 0.5));
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.arcTo(x + width, y, x + width, y + height, r);
+                ctx.arcTo(x + width, y + height, x, y + height, r);
+                ctx.arcTo(x, y + height, x, y, r);
+                ctx.arcTo(x, y, x + width, y, r);
+                ctx.closePath();
+              }
+
+              function isVisibleRect(rect) {
+                return rect.width > 2 && rect.height > 2 && rect.bottom > -40 && rect.top < h + 40 && rect.right > -40 && rect.left < w + 40;
+              }
+
+              function drawElementBox(node, rect, style) {
+                const bg = colorOrFallback(style.backgroundColor, node.classList.contains('card-border') ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.20)');
+                const border = colorOrFallback(style.borderColor, 'rgba(20, 24, 30, 0.16)');
+                const radius = parseFloat(style.borderTopLeftRadius) || (node.classList.contains('card-border') ? 0 : 12);
+                ctx.save();
+                ctx.globalAlpha = node.classList.contains('lab-panel') || node.classList.contains('lab-stage') ? 0.72 : 0.58;
+                ctx.fillStyle = bg;
+                drawRoundedRect(rect.left, rect.top, rect.width, rect.height, radius);
+                ctx.fill();
+                ctx.globalAlpha = 0.28;
+                ctx.strokeStyle = border;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
+              }
+
+              function drawElementText(node, rect, style) {
+                const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+                if (!text) return;
+                const size = Math.max(10, Math.min(parseFloat(style.fontSize) || 16, 72));
+                const weight = parseInt(style.fontWeight, 10) || (node.classList.contains('hero-text') ? 800 : 600);
+                const family = style.fontFamily || bodyStyle.fontFamily || 'sans-serif';
+                ctx.save();
+                ctx.globalAlpha = node.classList.contains('hero-text') ? 0.16 : 0.24;
+                ctx.fillStyle = colorOrFallback(style.color, '#1a1a1a');
+                ctx.font = `${weight} ${size}px ${family}`;
+                ctx.textBaseline = 'top';
+                const maxChars = node.classList.contains('hero-text') ? 28 : 46;
+                ctx.fillText(text.slice(0, maxChars), rect.left, rect.top + Math.max(0, Math.min(rect.height * 0.12, 18)));
+                ctx.restore();
+              }
+
+              const activePage = document.querySelector('.page.active');
+              if (activePage) {
+                const selectors = [
+                  '.hero-text', 'h1', 'h2', 'h3', 'p', '.card-border', '.lab-panel', '.lab-stage',
+                  '.lab-upload-card', '.lab-control-group', '.lab-chip', '.lab-empty-title', '.lab-empty-sub',
+                  'button', 'canvas', 'img'
+                ].join(',');
+                const nodes = Array.from(activePage.querySelectorAll(selectors)).slice(0, 64);
+                for (const node of nodes) {
+                  const rect = node.getBoundingClientRect();
+                  if (!isVisibleRect(rect)) continue;
+                  const style = getComputedStyle(node);
+                  const tag = node.tagName.toLowerCase();
+                  const boxLike = tag === 'button' || tag === 'canvas' || tag === 'img' ||
+                    node.classList.contains('card-border') || node.classList.contains('lab-panel') ||
+                    node.classList.contains('lab-stage') || node.classList.contains('lab-upload-card') ||
+                    node.classList.contains('lab-control-group') || node.classList.contains('lab-chip');
+                  if (boxLike) drawElementBox(node, rect, style);
+                  if (tag === 'h1' || tag === 'h2' || tag === 'h3' || tag === 'p' || node.classList.contains('hero-text') || node.classList.contains('lab-empty-title')) {
+                    drawElementText(node, rect, style);
+                  }
+                }
+              }
+
+              const navZone = ctx.createLinearGradient(0, h - 170, 0, h);
+              navZone.addColorStop(0.00, 'rgba(255,255,255,0.00)');
+              navZone.addColorStop(0.40, 'rgba(255,255,255,0.22)');
+              navZone.addColorStop(0.72, 'rgba(10,24,38,0.045)');
+              navZone.addColorStop(1.00, 'rgba(255,255,255,0.10)');
+              ctx.fillStyle = navZone;
+              ctx.fillRect(0, h - 170, w, 170);
+            }
+            function render(time) {
+              drawScene(time);
+
+              if (gl && program) {
+                tabRect = tabShell.getBoundingClientRect();
+                pointer.x += (pointer.targetX - pointer.x) * 0.14;
+                pointer.y += (pointer.targetY - pointer.y) * 0.14;
+                pointer.strength += (pointer.targetStrength - pointer.strength) * 0.10;
+                const previousThumbCenter = thumb.center;
+                const thumbEase = thumb.dragging ? 0.32 : 0.18;
+                thumb.center += (thumb.targetCenter - thumb.center) * thumbEase;
+                thumb.velocity = thumb.center - previousThumbCenter;
+                const outsidePull = Math.max(0, -thumb.targetCenter, thumb.targetCenter - tabRect.width);
+                const stretch = thumb.dragging
+                  ? Math.min(82, Math.abs(thumb.targetCenter - thumb.center) * 0.42 + Math.abs(thumb.velocity) * 4.8 + outsidePull * 0.42)
+                  : Math.min(38, Math.abs(thumb.velocity) * 3.6);
+                const pressLift = thumb.strength * thumb.strength;
+                const velocityLift = Math.min(16, Math.abs(thumb.velocity) * 0.72);
+                thumb.targetWidth = thumb.baseWidth + stretch + pressLift * 28;
+                thumb.targetHeight = thumb.baseHeight + pressLift * 24 + velocityLift + outsidePull * 0.20;
+                thumb.width += (thumb.targetWidth - thumb.width) * 0.22;
+                thumb.height += (thumb.targetHeight - thumb.height) * 0.20;
+                thumb.strength += (thumb.targetStrength - thumb.strength) * 0.12;
+                gl.viewport(0, 0, glass.width, glass.height);
+                gl.clearColor(0, 0, 0, 0);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.useProgram(program);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, sceneTexture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, scene);
+
+                const blurRadius = window.innerWidth < 560 ? 7 : 8;
+                const refractionAmount = window.innerWidth < 560 ? 28 : 34;
+                blurValue.textContent = String(blurRadius);
+                refractionValue.textContent = String(refractionAmount);
+
+                gl.uniform2f(locations.viewportSize, viewportWidth, viewportHeight);
+                gl.uniform2f(locations.tabPos, tabRect.left, tabRect.top);
+                gl.uniform2f(locations.tabSize, tabRect.width, tabRect.height);
+                gl.uniform2f(locations.pointer, pointer.x, pointer.y);
+                gl.uniform1f(locations.pixelRatio, pixelRatio);
+                gl.uniform1f(locations.time, time * 0.001);
+                gl.uniform1f(locations.radius, tabRect.height * 0.5);
+                gl.uniform1f(locations.refractionHeight, tabRect.height * 0.38);
+                gl.uniform1f(locations.refractionAmount, refractionAmount);
+                gl.uniform1f(locations.blurRadius, blurRadius);
+                gl.uniform1f(locations.pointerStrength, pointer.strength);
+                gl.uniform1f(locations.glassPadding, glassPadding);
+                gl.uniform2f(locations.thumbCenter, thumb.center, tabRect.height * 0.5);
+                gl.uniform2f(locations.thumbSize, thumb.width, thumb.height);
+                gl.uniform1f(locations.thumbVelocity, thumb.velocity);
+                gl.uniform1f(locations.thumbStrength, thumb.strength);
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+              }
+
+              requestAnimationFrame(render);
+            }
+            function setActive(button, immediate = false) {
+              tabButtons.forEach((item) => {
+                item.classList.toggle("is-active", item === button);
+              });
+              const title = button.dataset.tab;
+              readoutTitle.textContent = title;
+              readoutBody.textContent = button.dataset.body;
+              tabValue.textContent = title;
+              const nextIndex = tabButtons.indexOf(button);
+              syncThumbToIndex(nextIndex, immediate);
+              if (!immediate) switchPageContent(nextIndex);
+              pointer.targetStrength = 1.0;
+              thumb.targetStrength = 0.72;
+              setTimeout(() => {
+                pointer.targetStrength = 0.35;
+                if (!thumb.dragging) thumb.targetStrength = 0.42;
+              }, 170);
+            }
+
+            tabShell.addEventListener("pointermove", (event) => {
+              const rect = tabShell.getBoundingClientRect();
+              const localX = event.clientX - rect.left;
+              pointer.targetX = localX;
+              pointer.targetY = event.clientY - rect.top;
+              pointer.targetStrength = event.pressure ? 0.55 + event.pressure * 0.8 : 0.42;
+              if (thumb.dragging) {
+                thumb.moved = true;
+                thumb.targetCenter = clamp(localX, -glassPadding * 0.62, rect.width + glassPadding * 0.62);
+                const index = nearestTabIndex(localX);
+                const currentMetrics = tabMetrics(index);
+                thumb.baseWidth = currentMetrics.width;
+                thumb.baseHeight = currentMetrics.height;
+                const nextButton = tabButtons[index];
+                tabButtons.forEach((item) => {
+                  item.classList.toggle("is-active", item === nextButton);
+                });
+                readoutTitle.textContent = nextButton.dataset.tab;
+                readoutBody.textContent = nextButton.dataset.body;
+                tabValue.textContent = nextButton.dataset.tab;
+              }
+            });
+
+            tabShell.addEventListener("pointerleave", () => {
+              if (thumb.dragging) return;
+              pointer.targetX = tabRect.width * 0.5;
+              pointer.targetY = tabRect.height * 0.5;
+              pointer.targetStrength = 0.0;
+            });
+
+            tabShell.addEventListener("pointerdown", (event) => {
+              const rect = tabShell.getBoundingClientRect();
+              const localX = event.clientX - rect.left;
+              tabShell.setPointerCapture(event.pointerId);
+              tabShell.classList.add("is-dragging");
+              pointer.targetX = localX;
+              pointer.targetY = event.clientY - rect.top;
+              pointer.targetStrength = 1.0;
+              thumb.dragging = true;
+              thumb.moved = false;
+              thumb.targetStrength = 1.0;
+              thumb.targetCenter = clamp(localX, -glassPadding * 0.62, rect.width + glassPadding * 0.62);
+              const pressedMetrics = tabMetrics(nearestTabIndex(localX));
+              thumb.baseWidth = pressedMetrics.width;
+              thumb.baseHeight = pressedMetrics.height;
+            });
+
+            tabShell.addEventListener("pointerup", (event) => {
+              if (tabShell.hasPointerCapture(event.pointerId)) {
+                tabShell.releasePointerCapture(event.pointerId);
+              }
+              tabShell.classList.remove("is-dragging");
+              pointer.targetStrength = 0.35;
+              const index = nearestTabIndex(thumb.targetCenter);
+              thumb.dragging = false;
+              thumb.targetStrength = 0.52;
+              setActive(tabButtons[index]);
+            });
+
+            tabShell.addEventListener("pointercancel", (event) => {
+              if (tabShell.hasPointerCapture(event.pointerId)) {
+                tabShell.releasePointerCapture(event.pointerId);
+              }
+              tabShell.classList.remove("is-dragging");
+              thumb.dragging = false;
+              thumb.targetStrength = 0.42;
+              syncThumbToIndex(thumb.index);
+            });
+
+            tabButtons.forEach((button) => {
+              button.addEventListener("click", () => setActive(button));
+            });
+            window.addEventListener("resize", resize, { passive: true });
+            setupWebGL();
+            resize();
+            setActive(tabButtons[0], true);
+            requestAnimationFrame(render);
+            return { resize };
+        }
         // ------------------------------------------------
         // LAB PHOTO EDITOR (WebGL soft-focus pipeline)
         // ------------------------------------------------
@@ -3115,110 +3416,6 @@
         function waitLabFrame(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-
-        // ------------------------------------------------
-        // INTERACTION HANDLERS (復刻)
-        // ------------------------------------------------
-
-        function nearestIconFromLocalX(localX) {
-            const barInnerWidth = bar.offsetWidth - (BAR_PADDING_PX * 2);
-            const iconBoxWidth = barInnerWidth / NUM_ICONS;
-            const clampedX = clamp(localX - BAR_PADDING_PX, 0, barInnerWidth);
-            let nearestIndex = 0;
-            let minDist = Infinity;
-
-            icons.forEach((icon, index) => {
-                const iconCenter = (index * iconBoxWidth) + (iconBoxWidth / 2);
-                const dist = Math.abs(clampedX - iconCenter);
-                if (dist < minDist) {
-                    minDist = dist;
-                    nearestIndex = index;
-                }
-            });
-
-            return icons[nearestIndex];
-        }
-
-        function nearestIconFromSphere() {
-            const sphereCenter = state.x + (PILL_WIDTH_NORMAL / 2);
-            return nearestIconFromLocalX(sphereCenter);
-        }
-
-        function handleStart(clientX, event) {
-            if (!bar.contains(event.target)) return;
-            if (event.cancelable) event.preventDefault();
-
-            state.pointerDown = true;
-            state.dragStartClientX = clientX;
-            state.lastClientX = clientX;
-            state.hasDragged = false;
-        }
-
-        function beginDrag(clientX) {
-            state.vx = 0;
-            state.isDragging = true;
-            state.hasDragged = true;
-            state.startX = clientX;
-            sphere.classList.add('dragging');
-            bar.classList.add('is-dragging');
-        }
-
-        function handleMove(clientX) {
-            if (!state.pointerDown) return;
-            state.lastClientX = clientX;
-            const moved = Math.abs(clientX - state.dragStartClientX);
-            if (!state.isDragging && moved > 5) {
-                beginDrag(clientX);
-            }
-            if (state.isDragging) {
-                state.startX = clientX;
-            }
-        }
-
-        function handleEnd(clientX = state.lastClientX) {
-            if (!state.pointerDown) return;
-
-            const wasDragging = state.isDragging;
-            state.pointerDown = false;
-            state.isDragging = false;
-            state.suppressClick = true;
-            sphere.classList.remove('dragging');
-            bar.classList.remove('is-dragging');
-            setTimeout(() => { state.suppressClick = false; }, 0);
-
-            const nearestIcon = wasDragging
-                ? nearestIconFromSphere()
-                : nearestIconFromLocalX((clientX || state.lastClientX) - bar.getBoundingClientRect().left);
-
-            snapToIcon(nearestIcon);
-            if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
-        }
-        // BIND EVENTS
-        bar.addEventListener('mousedown', e => handleStart(e.clientX, e));
-        window.addEventListener('mousemove', e => handleMove(e.clientX));
-        window.addEventListener('mouseup', e => handleEnd(e.clientX));
-
-        bar.addEventListener('touchstart', e => handleStart(e.touches[0].clientX, e), {passive: false});
-        window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX), {passive: false});
-        window.addEventListener('touchend', e => handleEnd(e.changedTouches?.[0]?.clientX ?? state.lastClientX));
-
-        // Click handler for icons
-        icons.forEach((icon, idx) => {
-            icon.addEventListener('click', (e) => {
-                if (state.isDragging || state.suppressClick || Math.abs(state.vx) > 1) return;
-                snapToIcon(icon);
-                if (navigator.vibrate) navigator.vibrate(CONFIG.vibrateDuration);
-            });
-        });
-
-        window.addEventListener('resize', () => {
-           snapToIcon(icons[state.currentIndex], false);
-           state.x = state.targetX;
-           if (liquidTabsRenderer) {
-              liquidTabsRenderer.resize();
-              liquidTabsRenderer.invalidate();
-           }
-        });
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
